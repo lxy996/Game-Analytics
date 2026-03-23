@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SkillController : MonoBehaviour
 {
-    [SerializeField] private float dashDistance = 2f;
+    [SerializeField] private float dashDistance = 5f;
     [SerializeField] private float dashCooldown = 3f;
 
     private CharacterMotor motor;

@@ -61,11 +61,25 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        CombatController combat;
+        bool blocked;
+
         if (isDead)
         {
             return;
         }
 
+        combat = GetComponent<CombatController>();
+
+        if (combat != null)
+        {
+            blocked = combat.TryBlockHit();
+
+            if (blocked)
+            {
+                return;
+            }
+        }
         currentHealth = currentHealth - amount;
 
         if (currentHealth < 0)

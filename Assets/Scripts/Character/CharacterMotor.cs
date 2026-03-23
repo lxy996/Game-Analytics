@@ -41,6 +41,16 @@ public class CharacterMotor : MonoBehaviour
         return facingDirection;
     }
 
+    public void SetFacingDirection(Vector2 direction)
+    {
+        if (direction.sqrMagnitude < 0.01f)
+        {
+            return;
+        }
+
+        facingDirection = direction.normalized;
+    }
+
     public void SetMovementLocked(bool value)
     {
         movementLocked = value;

@@ -47,9 +47,36 @@ public class PlayerController : MonoBehaviour
 
     private void HandleCombat()
     {
+        Vector3 mouseWorld;
+        Vector2 attackDirection;
+
         if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J))
         {
+            if (combat != null)
+            {
+                // Use mouse to control the ranged weapon's attack direction
+                if (GetComponent<CharacterStats>().weaponType == WeaponType.Ranged)
+                {
+                    mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    attackDirection = new Vector2(
+                        mouseWorld.x - transform.position.x,
+                        mouseWorld.y - transform.position.y
+                    );
+
+                    combat.SetOverrideAttackDirection(attackDirection);
+                }
+                else
+                {
+                    combat.ClearOverrideAttackDirection();
+                }
+            }
+
             combat.BasicAttack();
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            combat.StartGuard();
         }
     }
 

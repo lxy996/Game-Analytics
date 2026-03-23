@@ -5,21 +5,32 @@ public class CombatController : MonoBehaviour
 {
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private Transform attackPoint;
-    [SerializeField] private float attackRadius = 0.5f;
+    //[SerializeField] private float attackRadius = 0.5f;
     [SerializeField] private float attackWindup = 0.12f;
     [SerializeField] private float attackRecovery = 0.05f;
 
     private CharacterStats stats;
     private CharacterMotor motor;
     private Animator animator;
+
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
+    private bool hasOverrideAttackDirection = false;
+    private Vector2 overrideAttackDirection = Vector2.right;
+
+    private bool isGuarding = false;
+    private float lastGuardTime = -999f;
 
     void Awake()
     {
         stats = GetComponent<CharacterStats>();
         motor = GetComponent<CharacterMotor>();
         animator = GetComponent<Animator>();
+    }
+    void LateUpdate()
+    {
+        UpdateAttackPointPosition();
+
     }
 
     public bool CanAttack()
@@ -41,6 +52,12 @@ public class CombatController : MonoBehaviour
     {
         if (!CanAttack())
         {
+            return;
+        }
+
+        if (attackPoint == null)
+        {
+            Debug.LogWarning("AttackPoint is missing on " + gameObject.name);
             return;
         }
 
@@ -93,6 +110,18 @@ public class CombatController : MonoBehaviour
 
     private void PerformAttackHit()
     {
+        if (stats.weaponType == WeaponType.Ranged)
+        {
+            PerformRangedAttack();
+        }
+        else
+        {
+            PerformMeleeAttack();
+        }
+
+    }
+    private void PerformMeleeAttack()
+    {
         Collider2D[] hits;
         int i;
         Collider2D hit;
@@ -102,7 +131,7 @@ public class CombatController : MonoBehaviour
 
         hits = Physics2D.OverlapCircleAll(
             attackPoint.position,
-            attackRadius,
+            stats.attackRadius,
             targetLayer
         );
 
@@ -128,11 +157,37 @@ public class CombatController : MonoBehaviour
         }
     }
 
-    void LateUpdate()
+    private void PerformRangedAttack()
     {
+        GameObject projectileObject;
+        Projectile projectile;
+        Vector2 direction;
+
+        if (stats.projectilePrefab == null)
+        {
+            Debug.LogWarning("Projectile prefab missing on " + gameObject.name);
+            return;
+        }
+
         UpdateAttackPointPosition();
 
+        direction = GetAttackDirection();
+
+        projectileObject = Instantiate(stats.projectilePrefab, attackPoint.position, Quaternion.identity);
+        projectile = projectileObject.GetComponent<Projectile>();
+
+        if (projectile != null)
+        {
+            projectile.Initialize(
+                direction,
+                stats.projectileSpeed,
+                stats.attackDamage,
+                stats.projectileLifetime,
+                targetLayer
+            );
+        }
     }
+
     private void UpdateAttackPointPosition()
     {
         Vector2 facing;
@@ -143,7 +198,7 @@ public class CombatController : MonoBehaviour
             return;
         }
 
-        facing = motor.GetFacingDirection();
+        facing = GetAttackDirection();
 
         if (facing.sqrMagnitude < 0.01f)
         {
@@ -154,14 +209,176 @@ public class CombatController : MonoBehaviour
         attackPoint.localPosition = localPos;
     }
 
+    public void PrepareAttackDirection(Transform target)
+    {
+        Vector2 directionToTarget;
+        Vector2 facingDirection;
+
+        if (target == null)
+        {
+            return;
+        }
+
+        directionToTarget = target.position - transform.position;
+
+        if (directionToTarget.sqrMagnitude < 0.01f)
+        {
+            return;
+        }
+
+        if (stats.weaponType == WeaponType.Ranged)
+        {
+            facingDirection = directionToTarget.normalized;
+            SetOverrideAttackDirection(facingDirection);
+            if (motor != null)
+            {
+                motor.SetFacingDirection(facingDirection);
+            }
+        }
+        else
+        {
+            if (directionToTarget.x >= 0f)
+            {
+                facingDirection = Vector2.right;
+            }
+            else
+            {
+                facingDirection = Vector2.left;
+            }
+
+            SetOverrideAttackDirection(facingDirection);
+
+            if (motor != null)
+            {
+                motor.SetFacingDirection(facingDirection);
+            }
+        }
+    }
+
+
+    private Vector2 GetAttackDirection()
+    {
+        Vector2 direction;
+
+        if (hasOverrideAttackDirection)
+        {
+            direction = overrideAttackDirection;
+        }
+        else
+        {
+            direction = motor.GetFacingDirection();
+        }
+
+        if (direction.sqrMagnitude < 0.01f)
+        {
+            direction = Vector2.right;
+        }
+
+        return direction.normalized;
+    }
+
+    // Used for player to set ranged attack direction
+    public void SetOverrideAttackDirection(Vector2 newDirection)
+    {
+        if (newDirection.sqrMagnitude < 0.01f)
+        {
+            return;
+        }
+
+        overrideAttackDirection = newDirection.normalized;
+        hasOverrideAttackDirection = true;
+    }
+
+    public void ClearOverrideAttackDirection()
+    {
+        hasOverrideAttackDirection = false;
+    }
+
+    public bool CanGuard()
+    {
+        if (!stats.hasShield)
+        {
+            return false;
+        }
+
+
+        if (Time.time >= lastGuardTime + stats.guardCooldown)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void StartGuard()
+    {
+
+        isGuarding = true;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsGuarding", isGuarding);
+        }
+    }
+
+    // Block the attack from enemy
+    public bool TryBlockHit()
+    {
+        if (!isGuarding)
+        {
+            return false;
+        }
+
+        isGuarding = false;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsGuarding", isGuarding);
+        }
+
+        lastGuardTime = Time.time;
+        return true;
+    }
+
+    public bool GetIsGuarding()
+    {
+        return isGuarding;
+    }
+    public LayerMask GetTargetLayer()
+    {
+        return targetLayer;
+    }
+    public void ApplyWeaponLoadout(WeaponLoadoutData loadout)
+    {
+        if (loadout == null)
+        {
+            return;
+        }
+
+        attackWindup = loadout.attackWindup;
+        attackRecovery = loadout.attackRecovery;
+    }
+
     void OnDrawGizmosSelected()
     {
+        CharacterStats debugStats;
+
         if (attackPoint == null)
         {
             return;
         }
 
+        debugStats = GetComponent<CharacterStats>();
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
+
+        if (debugStats != null)
+        {
+            Gizmos.DrawWireSphere(attackPoint.position, debugStats.attackRadius);
+        }
+        else
+        {
+            Gizmos.DrawWireSphere(attackPoint.position, 0.5f);
+        }
     }
 }
