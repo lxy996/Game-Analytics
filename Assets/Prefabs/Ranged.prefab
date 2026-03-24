@@ -297,7 +297,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   target: {fileID: 0}
-  stopDistance: 3
+  stopDistance: 6
   targetSearchRadius: 20
 --- !u!114 &3335569860296887227
 MonoBehaviour:

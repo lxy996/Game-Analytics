@@ -25,6 +25,13 @@ public class CharacterStats : MonoBehaviour
     public bool hasShield = false;
     public float guardCooldown = 1.0f;
 
+    [Header("AI")]
+    public float dashUseDistance = 6f;
+    public float meleeVerticalTolerance = 0.25f;
+
+    [Header("Melee Hit Shape")]
+    public int meleeHitSampleCount = 3;
+
     public float GetAttackCooldown()
     {
         if (attackSpeedMultiplier <= 0f)
@@ -53,6 +60,10 @@ public class CharacterStats : MonoBehaviour
 
         hasShield = loadout.hasShield;
         guardCooldown = loadout.guardCooldown;
+
+        dashUseDistance = loadout.dashUseDistance;
+        meleeVerticalTolerance = loadout.meleeVerticalTolerance;
+        meleeHitSampleCount = loadout.meleeHitSampleCount;
     }
 
 }

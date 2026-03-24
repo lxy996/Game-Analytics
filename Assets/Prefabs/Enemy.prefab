@@ -49,8 +49,10 @@ GameObject:
   - component: {fileID: 370638462937627773}
   - component: {fileID: 994950450047953732}
   - component: {fileID: 2026907287499533402}
+  - component: {fileID: 6504134222765067728}
   - component: {fileID: 8654286630326125722}
   - component: {fileID: 600819551842162680}
+  - component: {fileID: -955039251063580185}
   m_Layer: 12
   m_Name: Enemy
   m_TagString: Enemy
@@ -220,8 +222,11 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   projectileSpeed: 8
   projectileLifetime: 2
-  hasShield: 0
+  hasShield: 1
   guardCooldown: 1
+  dashUseDistance: 6
+  meleeVerticalTolerance: 0.25
+  meleeHitSampleCount: 3
 --- !u!114 &8990778855972359675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,6 +304,19 @@ MonoBehaviour:
   target: {fileID: 0}
   stopDistance: 1.2
   targetSearchRadius: 20
+--- !u!114 &6504134222765067728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7706338069034356953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e97f9e05a9ab14da8c411ed00b5985, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponLoadoutApplier
+  currentLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
 --- !u!114 &8654286630326125722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,3 +351,17 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-955039251063580185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7706338069034356953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa24699f35dcce1469745d883a8204b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamMember
+  team: 1
+  countsAsCombatant: 1

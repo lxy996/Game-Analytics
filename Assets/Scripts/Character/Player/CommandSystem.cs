@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CommandSystem : MonoBehaviour
@@ -5,47 +6,146 @@ public class CommandSystem : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float selectRadius = 0.5f;
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private Transform playerTransform;
 
-    private KeyCode pendingFunctionKey = KeyCode.None;
+    private AllyController[] allies;
+    private List<AllyController> selectedAllies = new List<AllyController>();
+    private AllySelectionGroup currentGroup = AllySelectionGroup.All;
+    //private KeyCode pendingFunctionKey = KeyCode.None;
     void Awake()
     {
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
         }
+
+        if (playerTransform == null)
+        {
+            PlayerController player = Object.FindFirstObjectByType<PlayerController>();
+
+            if (player != null)
+            {
+                playerTransform = player.transform;
+            }
+        }
+    }
+    void Start()
+    {
+        RefreshAllies();
+        SelectGroup(AllySelectionGroup.All);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F4))
+        HandleSelectionInput();
+        HandleCommandInput();
+    }
+
+    private void RefreshAllies()
+    {
+        allies = Object.FindObjectsByType<AllyController>(FindObjectsSortMode.None);
+    }
+
+    // Use number keys to select ally groups.
+    private void HandleSelectionInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            pendingFunctionKey = KeyCode.F4;
+            SelectGroup(AllySelectionGroup.All);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            SelectGroup(AllySelectionGroup.SwordShield);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SelectGroup(AllySelectionGroup.Polearm);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            SelectGroup(AllySelectionGroup.Ranged);
+        }
+    }
+
+    private void HandleCommandInput()
+    {
+        if (selectedAllies == null || selectedAllies.Count == 0)
+        {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.F3))
+        if (Input.GetKeyDown(KeyCode.F1))
         {
-            pendingFunctionKey = KeyCode.F3;
+            FocusTargetCommand();
+        }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            FollowPlayerCommand();
+        }
+        else if (Input.GetKeyDown(KeyCode.F3))
+        {
+            AutoCombatCommand();
+        }
+    }
+
+    private void SelectGroup(AllySelectionGroup group)
+    {
+        int i;
+
+        RefreshAllies();
+
+        selectedAllies.Clear();
+        currentGroup = group;
+
+        if (allies == null)
+        {
             return;
         }
 
-        if (pendingFunctionKey == KeyCode.F4)
+        for (i = 0; i < allies.Length; i++)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            CharacterStats stats;
+
+            if (allies[i] == null)
             {
-                FocusTargetCommand();
-                pendingFunctionKey = KeyCode.None;
+                continue;
+            }
+
+            stats = allies[i].GetComponent<CharacterStats>();
+
+            if (stats == null)
+            {
+                continue;
+            }
+
+            if (group == AllySelectionGroup.All)
+            {
+                selectedAllies.Add(allies[i]);
+            }
+            else if (group == AllySelectionGroup.SwordShield)
+            {
+                if (stats.weaponType == WeaponType.Melee && stats.hasShield)
+                {
+                    selectedAllies.Add(allies[i]);
+                }
+            }
+            else if (group == AllySelectionGroup.Polearm)
+            {
+                if (stats.weaponType == WeaponType.Polearm)
+                {
+                    selectedAllies.Add(allies[i]);
+                }
+            }
+            else if (group == AllySelectionGroup.Ranged)
+            {
+                if (stats.weaponType == WeaponType.Ranged)
+                {
+                    selectedAllies.Add(allies[i]);
+                }
             }
         }
 
-        if (pendingFunctionKey == KeyCode.F3)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-            {
-                FollowPlayerCommand();
-                pendingFunctionKey = KeyCode.None;
-            }
-        }
+        Debug.Log("Selected group: " + group + ", count = " + selectedAllies.Count);
     }
 
     private void FocusTargetCommand()
@@ -53,7 +153,6 @@ public class CommandSystem : MonoBehaviour
         Vector3 mouseWorld;
         Vector2 point;
         Collider2D hit;
-        AllyController[] allies;
         int i;
 
         if (mainCamera == null)
@@ -71,22 +170,53 @@ public class CommandSystem : MonoBehaviour
             return;
         }
 
-        allies = Object.FindObjectsByType<AllyController>(FindObjectsSortMode.None);
-
-        for (i = 0; i < allies.Length; i++)
+        for (i = 0; i < selectedAllies.Count; i++)
         {
-            if (allies[i] != null)
+            if (selectedAllies[i] == null)
             {
-                allies[i].SetTarget(hit.transform);
+                continue;
             }
+
+            selectedAllies[i].SetTarget(hit.transform);
+            selectedAllies[i].SetCommandMode(AllyCommandMode.FocusTarget);
         }
 
-        Debug.Log("Focus target command issued on " + hit.gameObject.name);
+        Debug.Log("Focus target command issued on " + hit.gameObject.name + " to group " + currentGroup);
     }
 
     private void FollowPlayerCommand()
     {
-        return;
+        int i;
+
+        for (i = 0; i < selectedAllies.Count; i++)
+        {
+            if (selectedAllies[i] == null)
+            {
+                continue;
+            }
+
+            selectedAllies[i].SetFollowTarget(playerTransform);
+            selectedAllies[i].SetCommandMode(AllyCommandMode.FollowPlayer);
+        }
+
+        Debug.Log("Follow player command issued to group " + currentGroup);
+    }
+
+    private void AutoCombatCommand()
+    {
+        int i;
+
+        for (i = 0; i < selectedAllies.Count; i++)
+        {
+            if (selectedAllies[i] == null)
+            {
+                continue;
+            }
+
+            selectedAllies[i].SetCommandMode(AllyCommandMode.AutoCombat);
+        }
+
+        Debug.Log("Auto combat command issued to group " + currentGroup);
     }
 
     void OnDrawGizmosSelected()

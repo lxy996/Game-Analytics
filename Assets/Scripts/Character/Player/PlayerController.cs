@@ -27,8 +27,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        HandleMovement();
         HandleCombat();
+        HandleMovement();
         HandleSkills();
     }
 
@@ -77,6 +77,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             combat.StartGuard();
+        }
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            combat.EndGuard();
         }
     }
 

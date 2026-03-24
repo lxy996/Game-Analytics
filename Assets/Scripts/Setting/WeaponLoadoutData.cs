@@ -30,4 +30,9 @@ public class WeaponLoadoutData : ScriptableObject
 
     [Header("AI")]
     public float stopDistance = 1.2f;
+    public float dashUseDistance = 6f;
+    public float meleeVerticalTolerance = 0.25f;
+
+    [Header("Melee Hit Shape")]
+    public int meleeHitSampleCount = 3;
 }

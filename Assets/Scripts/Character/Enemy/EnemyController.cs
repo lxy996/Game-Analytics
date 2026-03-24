@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     private CombatController combat;
     private SkillController skills;
     private Health health;
+    private CharacterStats stats;
 
     void Awake()
     {
@@ -20,12 +21,12 @@ public class EnemyController : MonoBehaviour
         combat = GetComponent<CombatController>();
         health = GetComponent<Health>();
         skills = GetComponent<SkillController>();
+        stats = GetComponent<CharacterStats>();
     }
 
     void Update()
     {
         Vector2 toTarget;
-        float distance;
         Vector2 moveDirection;
 
         if (health.GetIsDead())
@@ -46,21 +47,18 @@ public class EnemyController : MonoBehaviour
         }
 
         toTarget = target.position - transform.position;
-        distance = toTarget.magnitude;
-
-        if (distance > stopDistance)
+        if (ShouldMoveToTarget(toTarget))
         {
             moveDirection = toTarget.normalized;
             motor.SetMoveInput(moveDirection);
 
             if (skills != null)
             {
-                if (distance > 6f && skills.CanUseDash())
+                if (toTarget.magnitude > stats.dashUseDistance && skills.CanUseDash())
                 {
                     skills.UseDash();
                 }
             }
-
 
         }
         else
@@ -138,6 +136,41 @@ public class EnemyController : MonoBehaviour
         }
 
         return nearestTarget;
+    }
+
+    // Used to calculate whether the weapon can hit the target; if not, move towards the target.
+    private bool ShouldMoveToTarget(Vector2 toTarget)
+    {
+        float absX;
+        float absY;
+        float attackReach;
+
+        absX = Mathf.Abs(toTarget.x);
+        absY = Mathf.Abs(toTarget.y);
+
+        if (stats == null)
+        {
+            return true;
+        }
+
+        if (stats.weaponType == WeaponType.Ranged)
+        {
+            return toTarget.magnitude > stopDistance;
+        }
+
+        attackReach = stats.attackRange + stats.attackRadius;
+
+        if (absX > attackReach)
+        {
+            return true;
+        }
+
+        if (absY > stats.meleeVerticalTolerance)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public void SetTarget(Transform newTarget)

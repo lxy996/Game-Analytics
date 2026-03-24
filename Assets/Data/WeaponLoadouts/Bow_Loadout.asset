@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cd861b4d18bfa94788097b7eb5746a5, type: 3}
+  m_Name: Bow_Loadout
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponLoadoutData
+  weaponType: 2
+  animatorController: {fileID: 9100000, guid: 042ddb265cc5e334394bb92b05bdbf88, type: 2}
+  idleSprite: {fileID: 7257567913506708742, guid: eba56246e50907046912f90848c0010e, type: 3}
+  attackDamage: 15
+  baseAttackCooldown: 1.5
+  attackRange: 1.2
+  attackRadius: 0.5
+  attackWindup: 0.5
+  attackRecovery: 0.4
+  projectilePrefab: {fileID: 1694330226957728489, guid: b954ae5ec92620a4fb08bab02cf4634b, type: 3}
+  projectileSpeed: 10
+  projectileLifetime: 3
+  hasShield: 0
+  guardCooldown: 1
+  stopDistance: 6
+  dashUseDistance: 12
+  meleeVerticalTolerance: 0.25
+  meleeHitSampleCount: 3

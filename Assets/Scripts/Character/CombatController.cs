@@ -120,39 +120,71 @@ public class CombatController : MonoBehaviour
         }
 
     }
+
     private void PerformMeleeAttack()
     {
-        Collider2D[] hits;
+        Vector2 direction;
+        Vector2 origin;
+        float radius;
+        float range;
+        float step;
+        int sampleCount;
         int i;
-        Collider2D hit;
-        Health targetHealth;
+        System.Collections.Generic.HashSet<Health> hitTargets;
 
-        UpdateAttackPointPosition();
+        direction = GetAttackDirection();
 
-        hits = Physics2D.OverlapCircleAll(
-            attackPoint.position,
-            stats.attackRadius,
-            targetLayer
-        );
-
-        for (i = 0; i < hits.Length; i++)
+        if (direction.sqrMagnitude < 0.01f)
         {
-            hit = hits[i];
+            direction = Vector2.right;
+        }
 
-            if (hit.gameObject == gameObject)
+        origin = transform.position;
+        radius = stats.attackRadius;
+        range = stats.attackRange;
+        sampleCount = Mathf.Max(1, stats.meleeHitSampleCount); // Number of sample circles
+        step = range / sampleCount; // Distance between the two circles
+
+        hitTargets = new System.Collections.Generic.HashSet<Health>(); // Avoid repeated health deductions
+
+        for (i = 1; i <= sampleCount; i++)
+        {
+            Vector2 samplePoint;
+            Collider2D[] hits;
+            int j;
+
+            samplePoint = origin + direction.normalized * (step * i); // Current location of the sample point
+            hits = Physics2D.OverlapCircleAll(samplePoint, radius, targetLayer);
+
+            for (j = 0; j < hits.Length; j++)
             {
-                continue;
-            }
+                Health targetHealth;
 
-            targetHealth = hit.GetComponent<Health>();
-
-            if (targetHealth != null)
-            {
-                if (!targetHealth.GetIsDead())
+                if (hits[j].gameObject == gameObject)
                 {
-                    targetHealth.TakeDamage(stats.attackDamage);
-                    Debug.Log(gameObject.name + " hit " + hit.gameObject.name + " for " + stats.attackDamage);
+                    continue;
                 }
+
+                targetHealth = hits[j].GetComponent<Health>();
+
+                if (targetHealth == null)
+                {
+                    continue;
+                }
+
+                if (targetHealth.GetIsDead())
+                {
+                    continue;
+                }
+
+                if (hitTargets.Contains(targetHealth))
+                {
+                    continue;
+                }
+
+                hitTargets.Add(targetHealth);
+                targetHealth.TakeDamage(stats.attackDamage);
+                Debug.Log(gameObject.name + " hit " + hits[j].gameObject.name + " for " + stats.attackDamage);
             }
         }
     }
@@ -209,6 +241,7 @@ public class CombatController : MonoBehaviour
         attackPoint.localPosition = localPos;
     }
 
+    // Calculate the direction of the attack action
     public void PrepareAttackDirection(Transform target)
     {
         Vector2 directionToTarget;
@@ -312,8 +345,37 @@ public class CombatController : MonoBehaviour
 
     public void StartGuard()
     {
+        if (!CanGuard())
+        {
+            return;
+        }
 
         isGuarding = true;
+
+        if (motor != null)
+        {
+            motor.SetMovementLocked(true);
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool("IsGuarding", isGuarding);
+        }
+    }
+
+    public void EndGuard()
+    {
+        if (!isGuarding)
+        {
+            return;
+        }
+
+        isGuarding = false;
+
+        if (motor != null)
+        {
+            motor.SetMovementLocked(false);
+        }
 
         if (animator != null)
         {
@@ -330,6 +392,11 @@ public class CombatController : MonoBehaviour
         }
 
         isGuarding = false;
+
+        if (motor != null)
+        {
+            motor.SetMovementLocked(false);
+        }
 
         if (animator != null)
         {

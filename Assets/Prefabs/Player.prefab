@@ -50,9 +50,10 @@ GameObject:
   - component: {fileID: 546363042627549287}
   - component: {fileID: 5880599119141985180}
   - component: {fileID: 6105187224849560317}
+  - component: {fileID: 1004113035084078643}
   - component: {fileID: 6144741442098773830}
   - component: {fileID: 3317679475513214564}
-  - component: {fileID: 1004113035084078643}
+  - component: {fileID: -193650155343745649}
   m_Layer: 10
   m_Name: Player
   m_TagString: Player
@@ -219,11 +220,14 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   weaponType: 0
   attackRadius: 0.5
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 1694330226957728489, guid: b954ae5ec92620a4fb08bab02cf4634b, type: 3}
   projectileSpeed: 8
   projectileLifetime: 2
   hasShield: 1
   guardCooldown: 1
+  dashUseDistance: 6
+  meleeVerticalTolerance: 0.25
+  meleeHitSampleCount: 3
 --- !u!114 &999968755595009718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,6 +319,20 @@ MonoBehaviour:
     m_Bits: 4096
   selectRadius: 0.5
   mainCamera: {fileID: 0}
+  playerTransform: {fileID: 0}
+--- !u!114 &1004113035084078643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7289637929025786261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e97f9e05a9ab14da8c411ed00b5985, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponLoadoutApplier
+  currentLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
 --- !u!114 &6144741442098773830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,16 +367,17 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1004113035084078643
+--- !u!114 &-193650155343745649
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7289637929025786261}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20e97f9e05a9ab14da8c411ed00b5985, type: 3}
+  m_Script: {fileID: 11500000, guid: fa24699f35dcce1469745d883a8204b9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponLoadoutApplier
-  currentLoadout: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::TeamMember
+  team: 0
+  countsAsCombatant: 1
