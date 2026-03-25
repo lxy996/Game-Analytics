@@ -43,5 +43,29 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: WaterFoam
+    uniqueID: 1421360089
+    locked: 0
+  - name: FlatGround
+    uniqueID: 3265050337
+    locked: 0
+  - name: Shadow1
+    uniqueID: 1914203421
+    locked: 0
+  - name: ElevatedGround1
+    uniqueID: 1270799669
+    locked: 0
+  - name: Shadow2
+    uniqueID: 1009782861
+    locked: 0
+  - name: ElevatedGround2
+    uniqueID: 2270153737
+    locked: 0
+  - name: Decoration
+    uniqueID: 1081964143
+    locked: 0
+  - name: Characters
+    uniqueID: 3602039319
+    locked: 0
   m_RenderingLayers:
   - Default

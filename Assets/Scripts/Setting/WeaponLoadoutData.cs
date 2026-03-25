@@ -9,6 +9,9 @@ public class WeaponLoadoutData : ScriptableObject
     public RuntimeAnimatorController animatorController;
     public Sprite idleSprite;
 
+    [Header("Pickup Visual")]
+    public Sprite pickupIcon;
+
     [Header("Stats")]
     public float attackDamage = 20f;
     public float baseAttackCooldown = 0.6f;

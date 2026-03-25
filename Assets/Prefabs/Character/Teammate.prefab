@@ -53,6 +53,8 @@ GameObject:
   - component: {fileID: 1252850164589685964}
   - component: {fileID: 1077455850528763874}
   - component: {fileID: -6737702684740668748}
+  - component: {fileID: -6609717285558656718}
+  - component: {fileID: -7046926768930205171}
   m_Layer: 11
   m_Name: Teammate
   m_TagString: Teammate
@@ -121,8 +123,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -692927977
+  m_SortingLayer: 8
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7384290322352760091, guid: 63555c658eb534f48acbb1ba682fbec3, type: 3}
@@ -366,3 +368,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TeamMember
   team: 0
   countsAsCombatant: 1
+--- !u!114 &-6609717285558656718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8041715234744023827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ecacc7428dc1e445902134ab343421c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TemporaryStatEffects
+--- !u!114 &-7046926768930205171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8041715234744023827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb68590c3d019644e89cbb9113fee68a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDropOnDeath
+  weaponDropPrefab: {fileID: 0}
+  dropOffset: {x: 0, y: 0, z: 0}
+  dropOnDeath: 1

@@ -10,6 +10,7 @@ public class WeaponLoadoutApplier : MonoBehaviour
     private AllyController allyController;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private TemporaryStatEffects temporaryStatEffects;
 
     void Awake()
     {
@@ -19,6 +20,7 @@ public class WeaponLoadoutApplier : MonoBehaviour
         allyController = GetComponent<AllyController>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        temporaryStatEffects = GetComponent<TemporaryStatEffects>();
 
         ApplyCurrentLoadout();
     }
@@ -58,6 +60,11 @@ public class WeaponLoadoutApplier : MonoBehaviour
         if (spriteRenderer != null && currentLoadout.idleSprite != null)
         {
             spriteRenderer.sprite = currentLoadout.idleSprite;
+        }
+
+        if (temporaryStatEffects != null)
+        {
+            temporaryStatEffects.ReapplyActiveEffectsOnCurrentStats();
         }
     }
 
