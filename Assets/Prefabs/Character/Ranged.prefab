@@ -363,7 +363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb68590c3d019644e89cbb9113fee68a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDropOnDeath
-  weaponDropPrefab: {fileID: 0}
+  weaponDropPrefab: {fileID: 7235114915975615045, guid: a1ff669ac53ff384bb291dbf5531545f, type: 3}
   dropOffset: {x: 0, y: 0, z: 0}
   dropOnDeath: 1
 --- !u!114 &5868494078955539938

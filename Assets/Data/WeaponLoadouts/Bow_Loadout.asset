@@ -28,7 +28,7 @@ MonoBehaviour:
   - teamColor: 2
     animatorController: {fileID: 9100000, guid: b36783847cba3534c9ddb96f810628ed, type: 2}
     idleSprite: {fileID: 7257567913506708742, guid: 70d77df6ebf8e584c9488ef732bcc3d7, type: 3}
-  pickupIcon: {fileID: 0}
+  pickupIcon: {fileID: 21300000, guid: bbf8638a8a75d9c42b93639213c92c9b, type: 3}
   attackDamage: 15
   baseAttackCooldown: 1.5
   attackRange: 1.2
