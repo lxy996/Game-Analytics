@@ -9,10 +9,19 @@ public class TeamMember : MonoBehaviour
     {
         return team;
     }
+    public void SetTeam(ArenaTeam newTeam)
+    {
+        team = newTeam;
+    }
 
     // Used to determine whether the unit should be counted as a combatant.
     public bool CountsAsCombatant()
     {
         return countsAsCombatant;
+    }
+
+    public void SetCountsAsCombatant(bool value)
+    {
+        countsAsCombatant = value;
     }
 }

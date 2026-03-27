@@ -55,6 +55,7 @@ GameObject:
   - component: {fileID: -6737702684740668748}
   - component: {fileID: -6609717285558656718}
   - component: {fileID: -7046926768930205171}
+  - component: {fileID: -568083392483699880}
   m_Layer: 11
   m_Name: Teammate
   m_TagString: Teammate
@@ -395,3 +396,16 @@ MonoBehaviour:
   weaponDropPrefab: {fileID: 0}
   dropOffset: {x: 0, y: 0, z: 0}
   dropOnDeath: 1
+--- !u!114 &-568083392483699880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8041715234744023827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d08b41ba6d058734181bf49b6e2bbc35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaVisualIdentity
+  teamColor: 0

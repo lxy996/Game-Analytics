@@ -11,6 +11,7 @@ public class WeaponLoadoutApplier : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private TemporaryStatEffects temporaryStatEffects;
+    private ArenaVisualIdentity visualIdentity;
 
     void Awake()
     {
@@ -21,12 +22,17 @@ public class WeaponLoadoutApplier : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         temporaryStatEffects = GetComponent<TemporaryStatEffects>();
+        visualIdentity = GetComponent<ArenaVisualIdentity>();
 
         ApplyCurrentLoadout();
     }
 
     public void ApplyCurrentLoadout()
     {
+        RuntimeAnimatorController controllerToUse;
+        Sprite spriteToUse;
+        TeamVisualColor teamColor;
+
         if (currentLoadout == null)
         {
             return;
@@ -52,20 +58,33 @@ public class WeaponLoadoutApplier : MonoBehaviour
             allyController.ApplyWeaponLoadout(currentLoadout);
         }
 
-        if (animator != null && currentLoadout.animatorController != null)
+        teamColor = GetCurrentTeamColor();
+        controllerToUse = currentLoadout.GetAnimatorControllerForTeam(teamColor);
+        spriteToUse = currentLoadout.GetIdleSpriteForTeam(teamColor);
+
+        if (animator != null && controllerToUse != null)
         {
-            animator.runtimeAnimatorController = currentLoadout.animatorController;
+            animator.runtimeAnimatorController = controllerToUse;
         }
 
-        if (spriteRenderer != null && currentLoadout.idleSprite != null)
+        if (spriteRenderer != null && spriteToUse != null)
         {
-            spriteRenderer.sprite = currentLoadout.idleSprite;
+            spriteRenderer.sprite = spriteToUse;
         }
 
         if (temporaryStatEffects != null)
         {
             temporaryStatEffects.ReapplyActiveEffectsOnCurrentStats();
         }
+    }
+    private TeamVisualColor GetCurrentTeamColor()
+    {
+        if (visualIdentity != null)
+        {
+            return visualIdentity.GetTeamColor();
+        }
+
+        return TeamVisualColor.Blue;
     }
 
     public void SetLoadout(WeaponLoadoutData newLoadout)

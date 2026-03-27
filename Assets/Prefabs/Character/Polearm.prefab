@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 5669009526196917477}
   - component: {fileID: 1871499285776040297}
   - component: {fileID: -2504052870106084943}
+  - component: {fileID: -7177156481518338721}
   m_Layer: 11
   m_Name: Polearm
   m_TagString: Teammate
@@ -366,3 +367,16 @@ MonoBehaviour:
   weaponDropPrefab: {fileID: 0}
   dropOffset: {x: 0, y: 0, z: 0}
   dropOnDeath: 1
+--- !u!114 &-7177156481518338721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211271872243033836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d08b41ba6d058734181bf49b6e2bbc35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaVisualIdentity
+  teamColor: 0

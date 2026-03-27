@@ -1,13 +1,26 @@
 using UnityEngine;
+using System.Collections.Generic;
+
+
+[System.Serializable]
+public class WeaponVisualVariant
+{
+    public TeamVisualColor teamColor = TeamVisualColor.Blue;
+    public RuntimeAnimatorController animatorController;
+    public Sprite idleSprite;
+}
 
 [CreateAssetMenu(fileName = "WeaponLoadout", menuName = "Game/Weapon Loadout")]
 public class WeaponLoadoutData : ScriptableObject
 {
     public WeaponType weaponType;
 
-    [Header("Visual")]
+    [Header("Visual Fallback")]
     public RuntimeAnimatorController animatorController;
     public Sprite idleSprite;
+
+    [Header("Team Visual Variants")]
+    [SerializeField] private List<WeaponVisualVariant> teamVisualVariants = new List<WeaponVisualVariant>();
 
     [Header("Pickup Visual")]
     public Sprite pickupIcon;
@@ -38,4 +51,54 @@ public class WeaponLoadoutData : ScriptableObject
 
     [Header("Melee Hit Shape")]
     public int meleeHitSampleCount = 3;
+
+    public RuntimeAnimatorController GetAnimatorControllerForTeam(TeamVisualColor teamColor)
+    {
+        int i;
+
+        for (i = 0; i < teamVisualVariants.Count; i++)
+        {
+            if (teamVisualVariants[i] == null)
+            {
+                continue;
+            }
+
+            if (teamVisualVariants[i].teamColor != teamColor)
+            {
+                continue;
+            }
+
+            if (teamVisualVariants[i].animatorController != null)
+            {
+                return teamVisualVariants[i].animatorController;
+            }
+        }
+
+        return animatorController;
+    }
+
+    public Sprite GetIdleSpriteForTeam(TeamVisualColor teamColor)
+    {
+        int i;
+
+        for (i = 0; i < teamVisualVariants.Count; i++)
+        {
+            if (teamVisualVariants[i] == null)
+            {
+                continue;
+            }
+
+            if (teamVisualVariants[i].teamColor != teamColor)
+            {
+                continue;
+            }
+
+            if (teamVisualVariants[i].idleSprite != null)
+            {
+                return teamVisualVariants[i].idleSprite;
+            }
+        }
+
+        return idleSprite;
+    }
 }

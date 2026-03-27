@@ -15,9 +15,23 @@ MonoBehaviour:
   weaponType: 1
   animatorController: {fileID: 9100000, guid: dadb2340949fe59479ff0e05eece79ea, type: 2}
   idleSprite: {fileID: -594197781322936934, guid: e6baa4becab4c4b4ebe3cc87e49d8bff, type: 3}
+  teamVisualVariants:
+  - teamColor: 0
+    animatorController: {fileID: 9100000, guid: dadb2340949fe59479ff0e05eece79ea, type: 2}
+    idleSprite: {fileID: -594197781322936934, guid: e6baa4becab4c4b4ebe3cc87e49d8bff, type: 3}
+  - teamColor: 3
+    animatorController: {fileID: 9100000, guid: 0845f26707cc8114c8762be17416fcb9, type: 2}
+    idleSprite: {fileID: -594197781322936934, guid: f164864f08b74584ca4b2212ac87e7ff, type: 3}
+  - teamColor: 1
+    animatorController: {fileID: 9100000, guid: 386f1aed2f199114c9fca3b284da12f8, type: 2}
+    idleSprite: {fileID: -594197781322936934, guid: 691876a13cb7bf945af65c1e83b724be, type: 3}
+  - teamColor: 2
+    animatorController: {fileID: 9100000, guid: 5f8743ad7119a63408536f50569145c5, type: 2}
+    idleSprite: {fileID: -594197781322936934, guid: 1f081b71c944df543a85aae37f61cf3c, type: 3}
+  pickupIcon: {fileID: 0}
   attackDamage: 20
   baseAttackCooldown: 1.5
-  attackRange: 3
+  attackRange: 1.8
   attackRadius: 0.4
   attackWindup: 0.2
   attackRecovery: 0.2
@@ -26,7 +40,7 @@ MonoBehaviour:
   projectileLifetime: 0
   hasShield: 0
   guardCooldown: 1
-  stopDistance: 3
+  stopDistance: 1.8
   dashUseDistance: 10
   meleeVerticalTolerance: 0.25
   meleeHitSampleCount: 3

@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 5727561352553390879}
   - component: {fileID: 2818997910925130346}
   - component: {fileID: 141140326767689596}
+  - component: {fileID: 5868494078955539938}
   m_Layer: 12
   m_Name: Ranged
   m_TagString: Enemy
@@ -365,3 +366,16 @@ MonoBehaviour:
   weaponDropPrefab: {fileID: 0}
   dropOffset: {x: 0, y: 0, z: 0}
   dropOnDeath: 1
+--- !u!114 &5868494078955539938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5998626917886127176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d08b41ba6d058734181bf49b6e2bbc35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaVisualIdentity
+  teamColor: 0

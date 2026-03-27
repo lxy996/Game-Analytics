@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45b8c5a8ebd7ca6498dc59fab45e434b, type: 3}
+  m_Name: Archers
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaTeamRosterPresetData
+  rosterName: Archers team
+  defaultTheme: {fileID: 11400000, guid: ffeeee5f6cf5e3343a387ed9b24d287d, type: 2}
+  overrideFormation: 0
+  formationOverride:
+    frontLineDistance: 3
+    middleLineDistance: 5
+    backLineDistance: 7
+    verticalSpacing: 5
+    depthOffset: 0
+    centerYOffset: 0
+  fighters:
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 1dbd31957b7c9fa469a219f211fecf03, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 1dbd31957b7c9fa469a219f211fecf03, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 1dbd31957b7c9fa469a219f211fecf03, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 1dbd31957b7c9fa469a219f211fecf03, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+    spawnAsPlayerControlled: 0

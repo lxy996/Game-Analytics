@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 public class ArenaMatchManager : MonoBehaviour
 {
     [Header("Match Rules")]
     [SerializeField] private float timeLimit = 90f;
     [SerializeField] private bool endOnTeamWipe = true; // End the match when one team is wiped out
+    [SerializeField] private bool autoStartWithSceneCombatants = false;
 
     [Header("Score Rules")]
     [SerializeField] private int winScoreBonus = 100;
@@ -20,6 +23,7 @@ public class ArenaMatchManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Health playerHealth;
+    [SerializeField] private Transform combatantSearchRoot;
 
     [Header("UI")]
     [SerializeField] private Text timerText;
@@ -28,7 +32,8 @@ public class ArenaMatchManager : MonoBehaviour
 
     private List<Health> trackedHealths = new List<Health>(); // Record all the fighters on both sides
     // Link health to fighter's information (TeamMember)
-    private Dictionary<Health, TeamMember> memberLookup = new Dictionary<Health, TeamMember>(); 
+    private Dictionary<Health, TeamMember> memberLookup = new Dictionary<Health, TeamMember>();
+    private Dictionary<Health, Action> deathCallbacks = new Dictionary<Health, Action>();
 
     private int playerSideAlive;
     private int enemySideAlive;
@@ -42,6 +47,7 @@ public class ArenaMatchManager : MonoBehaviour
     private int performanceScore;
     private float matchStartTime;
     private bool matchEnded = false;
+    private bool matchStarted = false;
 
     private float lastPlayerKillTime = -999f;
     private int currentKillStreak = 0;
@@ -51,20 +57,23 @@ public class ArenaMatchManager : MonoBehaviour
 
     void Start()
     {
-        RegisterCombatants();
-        matchStartTime = Time.time;
-
-        if (playerHealth != null)
+        if (autoStartWithSceneCombatants)
         {
-            lastKnownPlayerHealth = playerHealth.GetCurrentHealth();
-            playerHealth.OnHealthChanged += OnPlayerHealthChanged;
+            BeginMatch(playerHealth);
+            return;
         }
 
+        UpdateTimerUIToFull();
         UpdateUI();
     }
 
     void Update()
     {
+        if (!matchStarted)
+        {
+            return;
+        }
+
         if (matchEnded)
         {
             return;
@@ -78,22 +87,110 @@ public class ArenaMatchManager : MonoBehaviour
         }
     }
 
+    public void BeginMatch(Health currentPlayerHealth)
+    {
+        ClearCurrentSubscriptions();
+        ResetRuntimeState();
+
+        playerHealth = currentPlayerHealth;
+        RegisterCombatants();
+
+        matchStartTime = Time.time;
+        matchStarted = true;
+
+        if (playerHealth != null)
+        {
+            lastKnownPlayerHealth = playerHealth.GetCurrentHealth();
+            playerHealth.OnHealthChanged += OnPlayerHealthChanged;
+        }
+
+        UpdateTimerUI();
+        UpdateUI();
+
+        if (resultText != null)
+        {
+            resultText.text = string.Empty;
+        }
+    }
+
+    // To facilitate searching for Combatant in the scene
+    public void SetCombatantSearchRoot(Transform root)
+    {
+        combatantSearchRoot = root;
+    }
+
+    private void ResetRuntimeState()
+    {
+        trackedHealths.Clear();
+        memberLookup.Clear();
+        deathCallbacks.Clear();
+
+        playerSideAlive = 0;
+        enemySideAlive = 0;
+
+        playerSideKills = 0;
+        enemySideKills = 0;
+
+        playerSideDeaths = 0;
+        enemySideDeaths = 0;
+
+        performanceScore = 0;
+        matchEnded = false;
+
+        lastPlayerKillTime = -999f;
+        currentKillStreak = 0;
+
+        playerWasHit = false;
+        lastKnownPlayerHealth = -1f;
+    }
+
+    private void ClearCurrentSubscriptions()
+    {
+        int i;
+        List<Health> healthKeys;
+
+        if (playerHealth != null)
+        {
+            playerHealth.OnHealthChanged -= OnPlayerHealthChanged;
+        }
+
+        healthKeys = new List<Health>(deathCallbacks.Keys);
+
+        for (i = 0; i < healthKeys.Count; i++)
+        {
+            if (healthKeys[i] == null)
+            {
+                continue;
+            }
+
+            if (!deathCallbacks.ContainsKey(healthKeys[i]))
+            {
+                continue;
+            }
+
+            healthKeys[i].OnDied -= deathCallbacks[healthKeys[i]];
+        }
+    }
+
     // Initialize the team member information for both sides.
     private void RegisterCombatants()
     {
         TeamMember[] members;
         int i;
 
-        trackedHealths.Clear();
-        memberLookup.Clear();
-        playerSideAlive = 0;
-        enemySideAlive = 0;
-
-        members = Object.FindObjectsByType<TeamMember>(FindObjectsSortMode.None);
+        if (combatantSearchRoot != null)
+        {
+            members = combatantSearchRoot.GetComponentsInChildren<TeamMember>();
+        }
+        else
+        {
+            members = GameObject.FindObjectsByType<TeamMember>(FindObjectsSortMode.None);
+        }
 
         for (i = 0; i < members.Length; i++)
         {
             Health h;
+            Action deathCallback;
 
             if (members[i] == null || !members[i].CountsAsCombatant())
             {
@@ -109,7 +206,15 @@ public class ArenaMatchManager : MonoBehaviour
 
             trackedHealths.Add(h);
             memberLookup[h] = members[i];
-            h.OnDied += () => OnCombatantDied(h);
+
+            // To make it easier to unsubscribe
+            deathCallback = delegate
+            {
+                OnCombatantDied(h);
+            };
+
+            deathCallbacks[h] = deathCallback;
+            h.OnDied += deathCallback;
 
             if (members[i].GetTeam() == ArenaTeam.PlayerSide)
             {
@@ -362,6 +467,16 @@ public class ArenaMatchManager : MonoBehaviour
         remain = Mathf.Max(0f, (matchStartTime + timeLimit) - Time.time);
         seconds = Mathf.CeilToInt(remain);
         timerText.text = "Time: " + seconds;
+    }
+
+    private void UpdateTimerUIToFull()
+    {
+        if (timerText == null)
+        {
+            return;
+        }
+
+        timerText.text = "Time: " + Mathf.CeilToInt(timeLimit);
     }
 
     private void UpdateUI()

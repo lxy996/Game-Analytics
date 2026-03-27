@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff5157f070e4a8749becb3d1c9422259, type: 3}
+  m_Name: FamilyBattleRandom
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaMatchPresetData
+  matchName: FamilyBattleRandom
+  playerFighterCount: 3
+  enemyFighterCount: 3
+  playerRosterPreset: {fileID: 11400000, guid: 775783d3d293931488fdb93ae5eaaed6, type: 2}
+  enemyRosterMode: 0
+  enemyTeamPresetPool:
+  - {fileID: 11400000, guid: 6545148787e273c45bf9dd8d2bff4621, type: 2}
+  - {fileID: 11400000, guid: f72c473f800545b4f894bdd623468ad8, type: 2}
+  - {fileID: 11400000, guid: 4149edade6596f746a43b6aec9364797, type: 2}
+  - {fileID: 11400000, guid: c6fbed4bc9f9d704fa26e70cf9e77764, type: 2}
+  enemyGladiatorPool: []
+  randomizeEnemyTheme: 1
+  enemyThemePool:
+  - {fileID: 11400000, guid: 8baec252360fd014099c6d6c45564945, type: 2}
+  - {fileID: 11400000, guid: 5476061bb6fa35c4cb7b9148a6864375, type: 2}
+  - {fileID: 11400000, guid: ffeeee5f6cf5e3343a387ed9b24d287d, type: 2}
+  allowDuplicateEnemyProfiles: 0
+  randomizeEnemyLoadouts: 0

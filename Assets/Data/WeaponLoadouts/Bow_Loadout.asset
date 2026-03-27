@@ -15,6 +15,20 @@ MonoBehaviour:
   weaponType: 2
   animatorController: {fileID: 9100000, guid: 042ddb265cc5e334394bb92b05bdbf88, type: 2}
   idleSprite: {fileID: 7257567913506708742, guid: eba56246e50907046912f90848c0010e, type: 3}
+  teamVisualVariants:
+  - teamColor: 0
+    animatorController: {fileID: 9100000, guid: 042ddb265cc5e334394bb92b05bdbf88, type: 2}
+    idleSprite: {fileID: 7257567913506708742, guid: eba56246e50907046912f90848c0010e, type: 3}
+  - teamColor: 3
+    animatorController: {fileID: 9100000, guid: 494a13e6450a70e4a8ae5e740669101e, type: 2}
+    idleSprite: {fileID: 7257567913506708742, guid: ac7b83b11085b044599f5030b07b4219, type: 3}
+  - teamColor: 1
+    animatorController: {fileID: 9100000, guid: d80b8032d3b625440b51e6bb6419d763, type: 2}
+    idleSprite: {fileID: 7257567913506708742, guid: 1ae933253142dd944b4ea1285b2581a5, type: 3}
+  - teamColor: 2
+    animatorController: {fileID: 9100000, guid: b36783847cba3534c9ddb96f810628ed, type: 2}
+    idleSprite: {fileID: 7257567913506708742, guid: 70d77df6ebf8e584c9488ef732bcc3d7, type: 3}
+  pickupIcon: {fileID: 0}
   attackDamage: 15
   baseAttackCooldown: 1.5
   attackRange: 1.2

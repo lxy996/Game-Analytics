@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f4bb582b5cae84f9121867bd594223, type: 3}
+  m_Name: EnemyArcher
+  m_EditorClassIdentifier: Assembly-CSharp::GladiatorProfileData
+  gladiatorName: EnemyArcher
+  shortDescription: 
+  portrait: {fileID: 7257567913506708742, guid: 277a50fd24135436398811e3293b2aa2, type: 3}
+  defaultLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+  availableLoadouts:
+  - {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+  - {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
+  - {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+  proficiencies:
+  - proficiencyType: 0
+    level: 3
+  - proficiencyType: 1
+    level: 2
+  - proficiencyType: 2
+    level: 5
+  - proficiencyType: 3
+    level: 3
+  - proficiencyType: 4
+    level: 0
+  skills: []
+  recruitCost: 130
+  weeklyWage: 18
