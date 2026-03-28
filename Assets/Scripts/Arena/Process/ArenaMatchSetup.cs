@@ -81,6 +81,7 @@ public class ArenaMatchSetup : MonoBehaviour
     private readonly List<GameObject> spawnedCombatants = new List<GameObject>();
     private GameObject currentLeftTower;
     private GameObject currentRightTower;
+    private EnemyAIProfileData runtimeEnemyAIProfile;
 
     void Start()
     {
@@ -140,6 +141,64 @@ public class ArenaMatchSetup : MonoBehaviour
         }
     }
 
+    public void BuildConfiguredMatch(ArenaMatchPresetData runtimePreset, List<ArenaMatchFighterEntry> runtimePlayerRoster)
+    {
+        List<ArenaMatchFighterEntry> resolvedPlayerRoster;
+        List<ArenaMatchFighterEntry> resolvedEnemyRoster;
+        ArenaTeamThemeData resolvedPlayerTheme;
+        ArenaTeamThemeData resolvedEnemyTheme;
+        ArenaFormationSettings resolvedPlayerFormation;
+        ArenaFormationSettings resolvedEnemyFormation;
+        Health playerHealthReference;
+
+        resolvedPlayerRoster = runtimePlayerRoster;
+        resolvedEnemyRoster = CloneRosterEntries(enemySideRoster);
+        resolvedPlayerTheme = playerTeamTheme;
+        resolvedEnemyTheme = enemyTeamTheme;
+        resolvedPlayerFormation = CloneFormation(playerFormation);
+        resolvedEnemyFormation = CloneFormation(enemyFormation);
+
+        if (runtimePreset != null)
+        {
+            if (runtimePreset.playerRosterPreset != null && runtimePreset.playerRosterPreset.defaultTheme != null)
+            {
+                resolvedPlayerTheme = runtimePreset.playerRosterPreset.defaultTheme;
+            }
+
+            ResolveEnemyConfigurationFromPreset(
+                runtimePreset,
+                ref resolvedEnemyRoster,
+                ref resolvedEnemyTheme,
+                ref resolvedEnemyFormation,
+                out _
+            );
+        }
+
+        ClearSpawnedCombatants();
+        ReplaceSideTower(leftTowerAnchor, resolvedPlayerTheme, ref currentLeftTower);
+        ReplaceSideTower(rightTowerAnchor, resolvedEnemyTheme, ref currentRightTower);
+
+        playerHealthReference = SpawnSide(
+            ArenaTeam.PlayerSide,
+            resolvedPlayerRoster,
+            resolvedPlayerFormation,
+            resolvedPlayerTheme
+        );
+
+        SpawnSide(
+            ArenaTeam.EnemySide,
+            resolvedEnemyRoster,
+            resolvedEnemyFormation,
+            resolvedEnemyTheme
+        );
+
+        if (matchManager != null)
+        {
+            matchManager.SetCombatantSearchRoot(combatantRoot);
+            matchManager.BeginMatch(playerHealthReference);
+        }
+    }
+
     // Resolve all data needed for this match.
     // Manual inspector values are still kept as a fallback.
     private void ResolveCurrentMatchConfiguration(
@@ -160,6 +219,7 @@ public class ArenaMatchSetup : MonoBehaviour
         resolvedPlayerFormation = CloneFormation(playerFormation);
         resolvedEnemyFormation = CloneFormation(enemyFormation);
         chosenEnemyPreset = null;
+        runtimeEnemyAIProfile = null;
 
         if (!useMatchPreset || matchPreset == null)
         {
@@ -234,6 +294,7 @@ public class ArenaMatchSetup : MonoBehaviour
     )
     {
         chosenEnemyPreset = null;
+        runtimeEnemyAIProfile = null;
 
         if (preset == null)
         {
@@ -241,6 +302,10 @@ public class ArenaMatchSetup : MonoBehaviour
         }
 
         chosenEnemyPreset = ChooseRandomTeamPreset(preset.enemyTeamPresetPool);
+        if (chosenEnemyPreset != null)
+        {
+            runtimeEnemyAIProfile = chosenEnemyPreset.enemyAIProfile;
+        }
 
         if (preset.enemyRosterMode == EnemyRosterGenerationMode.RandomTeamPreset)
         {
@@ -1016,8 +1081,10 @@ public class ArenaMatchSetup : MonoBehaviour
         TeamMember teamMember;
         ArenaVisualIdentity visualIdentity;
         WeaponLoadoutApplier loadoutApplier;
+        GladiatorInstanceIdentity instanceIdentity;
         string fighterName;
         TeamVisualColor teamColor;
+        EnemyController enemyController;
 
         if (spawnedObject == null)
         {
@@ -1064,6 +1131,24 @@ public class ArenaMatchSetup : MonoBehaviour
         if (loadoutApplier != null)
         {
             loadoutApplier.SetLoadout(resolvedEntry.resolvedLoadout);
+        }
+       
+        enemyController = spawnedObject.GetComponent<EnemyController>();
+
+        if (enemyController != null && team == ArenaTeam.EnemySide)
+        {
+            enemyController.ApplyAIProfile(runtimeEnemyAIProfile);
+        }
+
+        instanceIdentity = spawnedObject.GetComponent<GladiatorInstanceIdentity>();
+
+        if (instanceIdentity != null && resolvedEntry != null && resolvedEntry.sourceEntry != null)
+        {
+            instanceIdentity.SetIdentity(
+                resolvedEntry.sourceEntry.gladiatorProfile,
+                resolvedEntry.resolvedLoadout,
+                team == ArenaTeam.PlayerSide
+            );
         }
     }
 
@@ -1230,6 +1315,11 @@ public class ArenaMatchSetup : MonoBehaviour
         currentTower = Instantiate(towerPrefab, anchor.position, anchor.rotation, anchor);
     }
 
+    public void ClearCurrentCombatants()
+    {
+        ClearSpawnedCombatants();
+    }
+
     private void ClearSpawnedCombatants()
     {
         int i;
@@ -1244,4 +1334,5 @@ public class ArenaMatchSetup : MonoBehaviour
 
         spawnedCombatants.Clear();
     }
+
 }

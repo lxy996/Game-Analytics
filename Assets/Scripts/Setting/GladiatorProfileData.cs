@@ -4,11 +4,20 @@ using UnityEngine;
 public enum GladiatorProficiencyType
 {
     OneHanded,
+    TwoHanded,
     Polearm,
+
     Bow,
+    Crossbow,
+    Throwing,
+
     Running,
+    CombatArts,
     Shield,
-    Tactics
+
+    Tactics,
+    Medicine,
+    Magic
 }
 
 [System.Serializable]

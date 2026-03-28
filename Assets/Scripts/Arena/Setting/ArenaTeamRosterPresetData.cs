@@ -10,6 +10,9 @@ public class ArenaTeamRosterPresetData : ScriptableObject
     [Header("Theme")]
     public ArenaTeamThemeData defaultTheme;
 
+    [Header("Enemy AI")]
+    public EnemyAIProfileData enemyAIProfile;
+
     [Header("Formation Override")]
     public bool overrideFormation = false;
     public ArenaFormationSettings formationOverride = new ArenaFormationSettings();

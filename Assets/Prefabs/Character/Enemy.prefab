@@ -56,6 +56,7 @@ GameObject:
   - component: {fileID: -8477407286254787358}
   - component: {fileID: -9167279901485610404}
   - component: {fileID: -5703671940303104149}
+  - component: {fileID: -98263020625607548}
   m_Layer: 12
   m_Name: Enemy
   m_TagString: Enemy
@@ -162,7 +163,7 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 0
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!70 &3323922261047498021
@@ -408,3 +409,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaVisualIdentity
   teamColor: 0
+--- !u!114 &-98263020625607548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7706338069034356953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b0048a20f71391439a5ee88110878d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GladiatorInstanceIdentity
+  gladiatorProfile: {fileID: 0}
+  selectedLoadout: {fileID: 0}
+  belongsToPlayerSide: 0

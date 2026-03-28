@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class CommandSystem : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class CommandSystem : MonoBehaviour
     [SerializeField] private float selectRadius = 0.5f;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private Transform playerTransform;
+
+    public event Action<AllySelectionGroup, int> OnGroupSelectionChanged;
+    public event Action<string, Transform> OnCommandIssued;
 
     private AllyController[] allies;
     private List<AllyController> selectedAllies = new List<AllyController>();
@@ -21,7 +25,7 @@ public class CommandSystem : MonoBehaviour
 
         if (playerTransform == null)
         {
-            PlayerController player = Object.FindFirstObjectByType<PlayerController>();
+            PlayerController player = GameObject.FindFirstObjectByType<PlayerController>();
 
             if (player != null)
             {
@@ -43,7 +47,7 @@ public class CommandSystem : MonoBehaviour
 
     private void RefreshAllies()
     {
-        allies = Object.FindObjectsByType<AllyController>(FindObjectsSortMode.None);
+        allies = GameObject.FindObjectsByType<AllyController>(FindObjectsSortMode.None);
     }
 
     // Use number keys to select ally groups.
@@ -146,6 +150,10 @@ public class CommandSystem : MonoBehaviour
         }
 
         Debug.Log("Selected group: " + group + ", count = " + selectedAllies.Count);
+        if (OnGroupSelectionChanged != null)
+        {
+            OnGroupSelectionChanged(group, selectedAllies.Count);
+        }
     }
 
     private void FocusTargetCommand()
@@ -182,6 +190,10 @@ public class CommandSystem : MonoBehaviour
         }
 
         Debug.Log("Focus target command issued on " + hit.gameObject.name + " to group " + currentGroup);
+        if (OnCommandIssued != null)
+        {
+            OnCommandIssued("Focus Target", hit.transform);
+        }
     }
 
     private void FollowPlayerCommand()
@@ -200,6 +212,10 @@ public class CommandSystem : MonoBehaviour
         }
 
         Debug.Log("Follow player command issued to group " + currentGroup);
+        if (OnCommandIssued != null)
+        {
+            OnCommandIssued("Follow Player", null);
+        }
     }
 
     private void AutoCombatCommand()
@@ -217,6 +233,10 @@ public class CommandSystem : MonoBehaviour
         }
 
         Debug.Log("Auto combat command issued to group " + currentGroup);
+        if (OnCommandIssued != null)
+        {
+            OnCommandIssued("Auto Combat", null);
+        }
     }
 
     void OnDrawGizmosSelected()

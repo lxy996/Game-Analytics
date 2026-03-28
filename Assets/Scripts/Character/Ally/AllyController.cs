@@ -17,6 +17,8 @@ public class AllyController : MonoBehaviour
     private CharacterStats stats;
     private AllyCommandMode commandMode = AllyCommandMode.AutoCombat;
 
+    private float guardEndTime = -1f;
+
     void Awake()
     {
         motor = GetComponent<CharacterMotor>();
@@ -28,10 +30,24 @@ public class AllyController : MonoBehaviour
 
     void Update()
     {
-
         if (health.GetIsDead())
         {
             motor.SetMoveInput(Vector2.zero);
+            return;
+        }
+
+        if (HandleGuardState())
+        {
+            return;
+        }
+
+        if (HandleHazardAvoidance())
+        {
+            return;
+        }
+
+        if (HandlePickupSeek())
+        {
             return;
         }
 
@@ -48,7 +64,153 @@ public class AllyController : MonoBehaviour
         }
 
         UpdateAutoCombat();
+    }
 
+    private bool HandleGuardState()
+    {
+        if (combat == null)
+        {
+            return false;
+        }
+
+        if (guardEndTime < 0f)
+        {
+            return false;
+        }
+
+        if (Time.time <= guardEndTime)
+        {
+            motor.SetMoveInput(Vector2.zero);
+
+            if (target != null)
+            {
+                combat.PrepareAttackDirection(target);
+            }
+
+            return true;
+        }
+
+        if (combat.GetIsGuarding())
+        {
+            combat.EndGuard();
+        }
+
+        guardEndTime = -1f;
+        return false;
+    }
+
+    private bool HandleHazardAvoidance()
+    {
+        ArenaHazardSense[] hazards;
+        ArenaHazardSense closestHazard;
+        float closestDistance;
+        int i;
+
+        hazards = Object.FindObjectsByType<ArenaHazardSense>(FindObjectsSortMode.None);
+        closestHazard = null;
+        closestDistance = Mathf.Infinity;
+
+        for (i = 0; i < hazards.Length; i++)
+        {
+            float distance;
+
+            if (hazards[i] == null)
+            {
+                continue;
+            }
+
+            if (!hazards[i].IsDangerousFor(true))
+            {
+                continue;
+            }
+
+            distance = Vector2.Distance(transform.position, hazards[i].transform.position);
+
+            if (distance > hazards[i].GetDangerRadius() + 2f)
+            {
+                continue;
+            }
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestHazard = hazards[i];
+            }
+        }
+
+        if (closestHazard == null)
+        {
+            return false;
+        }
+
+        motor.SetMoveInput((transform.position - closestHazard.transform.position).normalized);
+        return true;
+    }
+
+    private bool HandlePickupSeek()
+    {
+        ArenaPickupAIHint[] pickups;
+        ArenaPickupAIHint bestPickup;
+        float bestScore;
+        int i;
+
+        if (GetHealthRatio() >= 0.65f)
+        {
+            return false;
+        }
+
+        pickups = Object.FindObjectsByType<ArenaPickupAIHint>(FindObjectsSortMode.None);
+        bestPickup = null;
+        bestScore = -999f;
+
+        for (i = 0; i < pickups.Length; i++)
+        {
+            float distance;
+            float score;
+
+            if (pickups[i] == null)
+            {
+                continue;
+            }
+
+            if (pickups[i].GetHintType() != ArenaPickupAIHintType.Heal)
+            {
+                continue;
+            }
+
+            distance = Vector2.Distance(transform.position, pickups[i].transform.position);
+
+            if (distance > 6f)
+            {
+                continue;
+            }
+
+            score = pickups[i].GetPriority() - distance * 0.15f;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestPickup = pickups[i];
+            }
+        }
+
+        if (bestPickup == null)
+        {
+            return false;
+        }
+
+        motor.SetMoveInput((bestPickup.transform.position - transform.position).normalized);
+        return true;
+    }
+
+    private float GetHealthRatio()
+    {
+        if (health == null || stats == null || stats.maxHealth <= 0f)
+        {
+            return 1f;
+        }
+
+        return health.GetCurrentHealth() / stats.maxHealth;
     }
 
     // Auto Combat
@@ -69,6 +231,12 @@ public class AllyController : MonoBehaviour
         }
 
         toTarget = target.position - transform.position;
+
+        if (ShouldStartGuard(toTarget))
+        {
+            StartTimedGuard();
+            return;
+        }
 
         if (ShouldMoveToTarget(toTarget))
         {
@@ -109,6 +277,12 @@ public class AllyController : MonoBehaviour
         }
 
         toTarget = target.position - transform.position;
+
+        if (ShouldStartGuard(toTarget))
+        {
+            StartTimedGuard();
+            return;
+        }
 
         if (ShouldMoveToTarget(toTarget))
         {
@@ -157,6 +331,52 @@ public class AllyController : MonoBehaviour
         {
             motor.SetMoveInput(Vector2.zero);
         }
+    }
+
+    private bool ShouldStartGuard(Vector2 toTarget)
+    {
+        if (stats == null || combat == null)
+        {
+            return false;
+        }
+
+        if (!stats.hasShield)
+        {
+            return false;
+        }
+
+        if (!combat.CanGuard())
+        {
+            return false;
+        }
+
+        if (toTarget.magnitude > 1.6f)
+        {
+            return false;
+        }
+
+        if (GetHealthRatio() <= 0.55f)
+        {
+            return true;
+        }
+
+        if (Random.value <= 0.25f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void StartTimedGuard()
+    {
+        if (combat == null)
+        {
+            return;
+        }
+
+        combat.StartGuard();
+        guardEndTime = Time.time + 0.75f;
     }
 
     private bool TargetIsInvalid()
@@ -250,10 +470,12 @@ public class AllyController : MonoBehaviour
     {
         target = newTarget;
     }
+
     public Transform GetCurrentTarget()
     {
         return target;
     }
+
     public void SetFollowTarget(Transform newFollowTarget)
     {
         followTarget = newFollowTarget;
@@ -278,5 +500,5 @@ public class AllyController : MonoBehaviour
 
         stopDistance = loadout.stopDistance;
     }
-
 }
+

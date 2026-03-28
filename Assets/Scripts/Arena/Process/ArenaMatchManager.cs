@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 
 public class ArenaMatchManager : MonoBehaviour
@@ -26,9 +27,9 @@ public class ArenaMatchManager : MonoBehaviour
     [SerializeField] private Transform combatantSearchRoot;
 
     [Header("UI")]
-    [SerializeField] private Text timerText;
-    [SerializeField] private Text scoreText;
-    [SerializeField] private Text resultText;
+    [SerializeField] private TMP_Text timerText;
+    [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private TMP_Text resultText;
 
     private List<Health> trackedHealths = new List<Health>(); // Record all the fighters on both sides
     // Link health to fighter's information (TeamMember)
@@ -48,6 +49,7 @@ public class ArenaMatchManager : MonoBehaviour
     private float matchStartTime;
     private bool matchEnded = false;
     private bool matchStarted = false;
+    private bool lastPlayerWon = false;
 
     private float lastPlayerKillTime = -999f;
     private int currentKillStreak = 0;
@@ -89,6 +91,7 @@ public class ArenaMatchManager : MonoBehaviour
 
     public void BeginMatch(Health currentPlayerHealth)
     {
+        lastPlayerWon = false;
         ClearCurrentSubscriptions();
         ResetRuntimeState();
 
@@ -392,6 +395,7 @@ public class ArenaMatchManager : MonoBehaviour
         }
 
         matchEnded = true;
+        lastPlayerWon = playerWon;
         elapsed = Time.time - matchStartTime;
 
         if (playerWon)
@@ -510,5 +514,9 @@ public class ArenaMatchManager : MonoBehaviour
     public int GetEnemySideKills()
     {
         return enemySideKills;
+    }
+    public bool GetLastPlayerWon()
+    {
+        return lastPlayerWon;
     }
 }

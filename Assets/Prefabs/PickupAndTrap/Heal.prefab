@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5598608171383998104
+--- !u!1 &8575564178979239359
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,40 +8,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1280684402407440885}
-  - component: {fileID: 7318111152454199550}
-  - component: {fileID: 5376454938777964360}
-  - component: {fileID: 7235114915975615045}
+  - component: {fileID: 5782949763473222917}
+  - component: {fileID: 5084832725121569740}
+  - component: {fileID: 1904593771612526524}
+  - component: {fileID: 9155931878485832405}
+  - component: {fileID: -8417594554994970152}
   m_Layer: 0
-  m_Name: Shield
+  m_Name: Heal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1280684402407440885
+--- !u!4 &5782949763473222917
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5598608171383998104}
+  m_GameObject: {fileID: 8575564178979239359}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.838, y: -1.41, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: -3.59, y: -2.389, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &7318111152454199550
+--- !u!212 &5084832725121569740
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5598608171383998104}
+  m_GameObject: {fileID: 8575564178979239359}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -83,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 7
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 256205b9c6ca12c45ab7762da8a65631, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7ae60e0e3b7fd419aa2a0b999da0fb07, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -93,13 +94,13 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!61 &5376454938777964360
+--- !u!61 &1904593771612526524
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5598608171383998104}
+  m_GameObject: {fileID: 8575564178979239359}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -137,23 +138,36 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.8, y: 0.8}
   m_EdgeRadius: 0
---- !u!114 &7235114915975615045
+--- !u!114 &9155931878485832405
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5598608171383998104}
+  m_GameObject: {fileID: 8575564178979239359}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a4255d9358716e41ab77970c7962239, type: 3}
+  m_Script: {fileID: 11500000, guid: e59965734dbe3f34db8c9513077c6d99, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponDropPickup
+  m_EditorClassIdentifier: Assembly-CSharp::HealPickup
   allowPlayer: 1
   allowAlly: 1
-  allowEnemy: 0
+  allowEnemy: 1
   destroyOnPickup: 1
-  droppedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
-  visualRenderer: {fileID: 7318111152454199550}
+  healAmount: 30
+--- !u!114 &-8417594554994970152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8575564178979239359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e28163749523b044a80accee93655345, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaPickupAIHint
+  hintType: 0
+  priority: 2
