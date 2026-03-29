@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f4bb582b5cae84f9121867bd594223, type: 3}
+  m_Name: EnemyLancerrMedium
+  m_EditorClassIdentifier: Assembly-CSharp::GladiatorProfileData
+  gladiatorName: Medium Lancer
+  shortDescription: 
+  portrait: {fileID: -594197781322936934, guid: 1f081b71c944df543a85aae37f61cf3c, type: 3}
+  defaultLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
+  availableLoadouts:
+  - {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+  - {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
+  - {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+  proficiencies:
+  - proficiencyType: 0
+    level: 107
+  - proficiencyType: 2
+    level: 129
+  - proficiencyType: 3
+    level: 67
+  - proficiencyType: 6
+    level: 154
+  - proficiencyType: 8
+    level: 95
+  skills: []
+  recruitCost: 130
+  weeklyWage: 18

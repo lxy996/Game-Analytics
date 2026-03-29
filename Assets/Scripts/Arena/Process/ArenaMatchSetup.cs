@@ -117,6 +117,7 @@ public class ArenaMatchSetup : MonoBehaviour
         );
 
         ClearSpawnedCombatants();
+        ClearTransientArenaObjects();
         ReplaceSideTower(leftTowerAnchor, resolvedPlayerTheme, ref currentLeftTower);
         ReplaceSideTower(rightTowerAnchor, resolvedEnemyTheme, ref currentRightTower);
 
@@ -175,6 +176,7 @@ public class ArenaMatchSetup : MonoBehaviour
         }
 
         ClearSpawnedCombatants();
+        ClearTransientArenaObjects();
         ReplaceSideTower(leftTowerAnchor, resolvedPlayerTheme, ref currentLeftTower);
         ReplaceSideTower(rightTowerAnchor, resolvedEnemyTheme, ref currentRightTower);
 
@@ -576,6 +578,90 @@ public class ArenaMatchSetup : MonoBehaviour
         }
 
         return finalRoster;
+    }
+
+    public void BuildPreviewEnemyData(
+    ArenaMatchPresetData runtimePreset,
+    out List<ArenaMatchFighterEntry> runtimeEnemyRoster,
+    out ArenaTeamThemeData runtimeEnemyTheme
+)
+    {
+        ArenaFormationSettings resolvedEnemyFormation;
+
+        runtimeEnemyRoster = CloneRosterEntries(enemySideRoster);
+        runtimeEnemyTheme = enemyTeamTheme;
+        resolvedEnemyFormation = CloneFormation(enemyFormation);
+
+        if (runtimePreset == null)
+        {
+            return;
+        }
+
+        ResolveEnemyConfigurationFromPreset(
+            runtimePreset,
+            ref runtimeEnemyRoster,
+            ref runtimeEnemyTheme,
+            ref resolvedEnemyFormation,
+            out _
+        );
+    }
+
+    public void BuildConfiguredMatch(
+        ArenaMatchPresetData runtimePreset,
+        List<ArenaMatchFighterEntry> runtimePlayerRoster,
+        List<ArenaMatchFighterEntry> runtimeEnemyRoster,
+        ArenaTeamThemeData runtimeEnemyTheme
+    )
+    {
+        List<ArenaMatchFighterEntry> resolvedPlayerRoster;
+        ArenaTeamThemeData resolvedPlayerTheme;
+        ArenaFormationSettings resolvedPlayerFormation;
+        ArenaFormationSettings resolvedEnemyFormation;
+        Health playerHealthReference;
+
+        ClearTransientArenaObjects();
+
+        resolvedPlayerRoster = runtimePlayerRoster;
+        resolvedPlayerTheme = playerTeamTheme;
+        resolvedPlayerFormation = CloneFormation(playerFormation);
+        resolvedEnemyFormation = CloneFormation(enemyFormation);
+
+        if (runtimePreset != null)
+        {
+            if (runtimePreset.playerRosterPreset != null && runtimePreset.playerRosterPreset.defaultTheme != null)
+            {
+                resolvedPlayerTheme = runtimePreset.playerRosterPreset.defaultTheme;
+            }
+
+            if (runtimePreset.playerRosterPreset != null && runtimePreset.playerRosterPreset.overrideFormation)
+            {
+                resolvedPlayerFormation = CloneFormation(runtimePreset.playerRosterPreset.formationOverride);
+            }
+        }
+
+        ClearSpawnedCombatants();
+        ReplaceSideTower(leftTowerAnchor, resolvedPlayerTheme, ref currentLeftTower);
+        ReplaceSideTower(rightTowerAnchor, runtimeEnemyTheme, ref currentRightTower);
+
+        playerHealthReference = SpawnSide(
+            ArenaTeam.PlayerSide,
+            resolvedPlayerRoster,
+            resolvedPlayerFormation,
+            resolvedPlayerTheme
+        );
+
+        SpawnSide(
+            ArenaTeam.EnemySide,
+            runtimeEnemyRoster,
+            resolvedEnemyFormation,
+            runtimeEnemyTheme
+        );
+
+        if (matchManager != null)
+        {
+            matchManager.SetCombatantSearchRoot(combatantRoot);
+            matchManager.BeginMatch(playerHealthReference);
+        }
     }
 
     // Filter out unusable gladiator profiles.
@@ -1318,6 +1404,7 @@ public class ArenaMatchSetup : MonoBehaviour
     public void ClearCurrentCombatants()
     {
         ClearSpawnedCombatants();
+        ClearTransientArenaObjects();
     }
 
     private void ClearSpawnedCombatants()
@@ -1333,6 +1420,32 @@ public class ArenaMatchSetup : MonoBehaviour
         }
 
         spawnedCombatants.Clear();
+    }
+
+    private void ClearTransientArenaObjects()
+    {
+        ArenaPickup[] pickups;
+        ArenaHazardSense[] hazards;
+        int i;
+
+        pickups = Object.FindObjectsByType<ArenaPickup>(FindObjectsSortMode.None);
+        hazards = Object.FindObjectsByType<ArenaHazardSense>(FindObjectsSortMode.None);
+
+        for (i = 0; i < pickups.Length; i++)
+        {
+            if (pickups[i] != null)
+            {
+                Destroy(pickups[i].gameObject);
+            }
+        }
+
+        for (i = 0; i < hazards.Length; i++)
+        {
+            if (hazards[i] != null)
+            {
+                Destroy(hazards[i].gameObject);
+            }
+        }
     }
 
 }

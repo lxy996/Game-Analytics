@@ -20,6 +20,7 @@ public class CombatController : MonoBehaviour
 
     private bool isGuarding = false;
     private float lastGuardTime = -999f;
+    private int remainingGuardBlocks = 0;
 
     void Awake()
     {
@@ -288,7 +289,6 @@ public class CombatController : MonoBehaviour
         }
     }
 
-
     private Vector2 GetAttackDirection()
     {
         Vector2 direction;
@@ -351,6 +351,7 @@ public class CombatController : MonoBehaviour
         }
 
         isGuarding = true;
+        remainingGuardBlocks = Mathf.Max(1, stats.guardBlockCountPerUse);
 
         if (motor != null)
         {
@@ -391,19 +392,28 @@ public class CombatController : MonoBehaviour
             return false;
         }
 
-        isGuarding = false;
-
-        if (motor != null)
+        if (remainingGuardBlocks > 0)
         {
-            motor.SetMovementLocked(false);
+            remainingGuardBlocks = remainingGuardBlocks - 1;
         }
 
-        if (animator != null)
+        if (remainingGuardBlocks <= 0)
         {
-            animator.SetBool("IsGuarding", isGuarding);
+            isGuarding = false;
+
+            if (motor != null)
+            {
+                motor.SetMovementLocked(false);
+            }
+
+            if (animator != null)
+            {
+                animator.SetBool("IsGuarding", isGuarding);
+            }
+
+            lastGuardTime = Time.time;
         }
 
-        lastGuardTime = Time.time;
         return true;
     }
 
@@ -425,6 +435,32 @@ public class CombatController : MonoBehaviour
         attackWindup = loadout.attackWindup;
         attackRecovery = loadout.attackRecovery;
     }
+
+    public float GetGuardCooldownRemaining()
+    {
+        float remain;
+
+        remain = (lastGuardTime + stats.guardCooldown) - Time.time;
+
+        if (remain < 0f)
+        {
+            remain = 0f;
+        }
+
+        return remain;
+    }
+
+    public float GetGuardCooldownNormalized()
+    {
+        if (stats == null || stats.guardCooldown <= 0f)
+        {
+            return 0f;
+        }
+
+        return GetGuardCooldownRemaining() / stats.guardCooldown;
+    }
+
+
 
     void OnDrawGizmosSelected()
     {

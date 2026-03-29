@@ -16,6 +16,7 @@ public class EnemyAIProfileData : ScriptableObject
 
     [Header("Targeting")]
     public bool prioritizePlayerCharacter = false;
+    public bool focusFireLowestHealth = false;
 
     [Header("Guard")]
     public bool enableAutoGuard = false;
@@ -30,6 +31,13 @@ public class EnemyAIProfileData : ScriptableObject
 
     [Header("Aggression")]
     public float dashAggressionMultiplier = 1f;
+    public bool aggressiveDashToBackline = false;
+
+    [Header("Formation")]
+    public bool stayNearSpawn = false;
+    public float maxRoamDistanceFromSpawn = 5f;
+    public bool polearmStayNearShield = false;
+    public float maxDistanceFromShieldAnchor = 2.5f;
 
     [Header("AI Senses")]
     public float pickupSearchRadius = 6f;

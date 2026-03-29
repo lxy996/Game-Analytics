@@ -18,6 +18,14 @@ public class EnemyController : MonoBehaviour
     private EnemyAIProfileData aiProfile;
     private float guardEndTime = -1f;
 
+    private float avoidHazardUntil = -1f;
+    private Vector2 avoidHazardDirection = Vector2.zero;
+
+    private float nextPickupSearchTime = 0f;
+    private Transform cachedPickupTarget;
+
+    private Vector3 spawnOrigin;
+
     void Awake()
     {
         motor = GetComponent<CharacterMotor>();
@@ -25,6 +33,7 @@ public class EnemyController : MonoBehaviour
         health = GetComponent<Health>();
         skills = GetComponent<SkillController>();
         stats = GetComponent<CharacterStats>();
+        spawnOrigin = transform.position;
     }
 
     void Update()
@@ -58,6 +67,17 @@ public class EnemyController : MonoBehaviour
             target = FindBestTarget();
         }
 
+        if (ShouldReturnToFormation())
+        {
+            motor.SetMoveInput((spawnOrigin - transform.position).normalized);
+            return;
+        }
+
+        if (ShouldReturnNearShieldAnchor())
+        {
+            return;
+        }
+
         if (target == null)
         {
             motor.SetMoveInput(Vector2.zero);
@@ -77,12 +97,28 @@ public class EnemyController : MonoBehaviour
             moveDirection = (-toTarget).normalized;
             motor.SetMoveInput(moveDirection);
             combat.PrepareAttackDirection(target);
+
+            if (skills != null && skills.CanUseDash())
+            {
+                skills.UseDash();
+            }
+
             return;
+        }
+
+        if (ShouldDashToBackline(toTarget))
+        {
+            combat.PrepareAttackDirection(target);
+
+            if (skills != null && skills.CanUseDash())
+            {
+                skills.UseDash();
+            }
         }
 
         if (ShouldMoveToTarget(toTarget))
         {
-            moveDirection = toTarget.normalized;
+            moveDirection = GetApproachMoveDirection(toTarget);
             motor.SetMoveInput(moveDirection);
 
             if (skills != null && stats != null)
@@ -140,6 +176,39 @@ public class EnemyController : MonoBehaviour
 
     private bool HandleHazardAvoidance()
     {
+        ArenaHazardSense hazard;
+        float distance;
+
+        hazard = FindClosestDangerousHazard();
+
+        if (hazard != null)
+        {
+            distance = Vector2.Distance(transform.position, hazard.transform.position);
+
+            if (distance <= hazard.GetDangerRadius() + GetHazardAvoidPadding())
+            {
+                avoidHazardDirection = ((Vector2)(transform.position - hazard.transform.position)).normalized;
+
+                if (avoidHazardDirection.sqrMagnitude < 0.01f)
+                {
+                    avoidHazardDirection = Random.insideUnitCircle.normalized;
+                }
+
+                avoidHazardUntil = Time.time + 0.45f;
+            }
+        }
+
+        if (Time.time < avoidHazardUntil)
+        {
+            motor.SetMoveInput(avoidHazardDirection);
+            return true;
+        }
+
+        return false;
+    }
+
+    private ArenaHazardSense FindClosestDangerousHazard()
+    {
         ArenaHazardSense[] hazards;
         ArenaHazardSense closestHazard;
         float closestDistance;
@@ -177,26 +246,62 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if (closestHazard == null)
+        return closestHazard;
+    }
+
+    private bool HandlePickupSeek()
+    {
+        ArenaPickupAIHint bestPickup;
+        Vector2 toPickup;
+
+        if (HasImmediateCombatPressure())
+        {
+            cachedPickupTarget = null;
+            return false;
+        }
+
+        if (Time.time >= nextPickupSearchTime || cachedPickupTarget == null)
+        {
+            bestPickup = FindBestPickupForEnemy();
+            cachedPickupTarget = bestPickup != null ? bestPickup.transform : null;
+            nextPickupSearchTime = Time.time + 0.35f;
+        }
+
+        if (cachedPickupTarget == null)
         {
             return false;
         }
 
-        motor.SetMoveInput((transform.position - closestHazard.transform.position).normalized);
+        toPickup = cachedPickupTarget.position - transform.position;
+
+        if (toPickup.sqrMagnitude < 0.04f)
+        {
+            return false;
+        }
+
+        motor.SetMoveInput(toPickup.normalized);
         return true;
     }
 
-    private bool HandlePickupSeek()
+    private bool HasImmediateCombatPressure()
+    {
+        if (!TargetIsInvalid())
+        {
+            if (Vector2.Distance(transform.position, target.position) <= 3.2f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private ArenaPickupAIHint FindBestPickupForEnemy()
     {
         ArenaPickupAIHint[] pickups;
         ArenaPickupAIHint bestPickup;
         float bestScore;
         int i;
-
-        if (health == null || stats == null)
-        {
-            return false;
-        }
 
         pickups = Object.FindObjectsByType<ArenaPickupAIHint>(FindObjectsSortMode.None);
         bestPickup = null;
@@ -212,6 +317,11 @@ public class EnemyController : MonoBehaviour
                 continue;
             }
 
+            if (!pickups[i].CanBePickedByEnemy())
+            {
+                continue;
+            }
+
             distance = Vector2.Distance(transform.position, pickups[i].transform.position);
 
             if (distance > GetPickupSearchRadius())
@@ -219,17 +329,24 @@ public class EnemyController : MonoBehaviour
                 continue;
             }
 
-            score = pickups[i].GetPriority() - distance * 0.15f;
+            score = pickups[i].GetPriority() - distance * 0.18f;
 
             if (pickups[i].GetHintType() == ArenaPickupAIHintType.Heal)
             {
-                if (GetHealthRatio() < 0.6f)
+                if (GetHealthRatio() < 0.5f)
                 {
-                    score = score + 5f;
+                    score = score + 6f;
                 }
                 else
                 {
-                    score = score - 3f;
+                    score = score - 4f;
+                }
+            }
+            else
+            {
+                if (!TargetIsInvalid())
+                {
+                    score = score - 2.5f;
                 }
             }
 
@@ -240,13 +357,110 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if (bestPickup == null)
+        return bestPickup;
+    }
+
+    private bool ShouldReturnToFormation()
+    {
+        if (aiProfile == null)
         {
             return false;
         }
 
-        motor.SetMoveInput((bestPickup.transform.position - transform.position).normalized);
+        if (!aiProfile.stayNearSpawn)
+        {
+            return false;
+        }
+
+        if (Vector2.Distance(transform.position, spawnOrigin) > aiProfile.maxRoamDistanceFromSpawn)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool ShouldReturnNearShieldAnchor()
+    {
+        EnemyController anchorShield;
+        float distance;
+
+        if (aiProfile == null || stats == null)
+        {
+            return false;
+        }
+
+        if (!aiProfile.polearmStayNearShield)
+        {
+            return false;
+        }
+
+        if (stats.weaponType != WeaponType.Polearm)
+        {
+            return false;
+        }
+
+        anchorShield = FindNearestShieldAlly();
+
+        if (anchorShield == null)
+        {
+            return false;
+        }
+
+        distance = Vector2.Distance(transform.position, anchorShield.transform.position);
+
+        if (distance <= aiProfile.maxDistanceFromShieldAnchor)
+        {
+            return false;
+        }
+
+        motor.SetMoveInput((anchorShield.transform.position - transform.position).normalized);
         return true;
+    }
+
+    private EnemyController FindNearestShieldAlly()
+    {
+        EnemyController[] allies;
+        EnemyController best;
+        float bestDistance;
+        int i;
+
+        allies = Object.FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
+        best = null;
+        bestDistance = Mathf.Infinity;
+
+        for (i = 0; i < allies.Length; i++)
+        {
+            CharacterStats allyStats;
+            float distance;
+
+            if (allies[i] == null || allies[i] == this)
+            {
+                continue;
+            }
+
+            allyStats = allies[i].GetComponent<CharacterStats>();
+
+            if (allyStats == null)
+            {
+                continue;
+            }
+
+            if (allyStats.weaponType != WeaponType.Melee || !allyStats.hasShield)
+            {
+                continue;
+            }
+
+            distance = Vector2.Distance(transform.position, allies[i].transform.position);
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = allies[i];
+            }
+        }
+
+        return best;
     }
 
     private bool ShouldStartGuard(Vector2 toTarget)
@@ -330,6 +544,65 @@ public class EnemyController : MonoBehaviour
         return false;
     }
 
+    private bool ShouldDashToBackline(Vector2 toTarget)
+    {
+        if (aiProfile == null || stats == null || skills == null)
+        {
+            return false;
+        }
+
+        if (!aiProfile.aggressiveDashToBackline)
+        {
+            return false;
+        }
+
+        if (stats.weaponType != WeaponType.Melee || !stats.hasShield)
+        {
+            return false;
+        }
+
+        if (!skills.CanUseDash())
+        {
+            return false;
+        }
+
+        if (TargetIsBacklineTarget(target) && toTarget.magnitude > 2.2f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TargetIsBacklineTarget(Transform candidate)
+    {
+        CharacterStats targetStats;
+
+        if (candidate == null)
+        {
+            return false;
+        }
+
+        targetStats = candidate.GetComponent<CharacterStats>();
+
+        if (targetStats == null)
+        {
+            return false;
+        }
+
+        if (targetStats.weaponType == WeaponType.Ranged)
+        {
+            return true;
+        }
+
+        if (targetStats.weaponType == WeaponType.Polearm)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private float GetDashDistanceThreshold()
     {
         if (aiProfile == null || stats == null)
@@ -362,12 +635,12 @@ public class EnemyController : MonoBehaviour
 
     private float GetHealthRatio()
     {
-        if (health == null || stats == null || stats.maxHealth <= 0f)
+        if (health == null || stats == null || stats.GetEffectiveMaxHealth() <= 0f)
         {
             return 1f;
         }
 
-        return health.GetCurrentHealth() / stats.maxHealth;
+        return health.GetCurrentHealth() / stats.GetEffectiveMaxHealth();
     }
 
     private bool TargetIsInvalid()
@@ -398,63 +671,110 @@ public class EnemyController : MonoBehaviour
     {
         GameObject[] players;
         GameObject[] teammates;
-        Transform nearestTarget;
-        float nearestDistance;
-        float currentDistance;
+        Transform bestTarget;
+        float bestScore;
         int i;
 
-        nearestTarget = null;
-        nearestDistance = Mathf.Infinity;
-
         players = GameObject.FindGameObjectsWithTag("Player");
+        teammates = GameObject.FindGameObjectsWithTag("Teammate");
 
-        if (aiProfile != null && aiProfile.prioritizePlayerCharacter)
-        {
-            for (i = 0; i < players.Length; i++)
-            {
-                currentDistance = Vector2.Distance(transform.position, players[i].transform.position);
-
-                if (currentDistance < nearestDistance && currentDistance <= targetSearchRadius)
-                {
-                    nearestDistance = currentDistance;
-                    nearestTarget = players[i].transform;
-                }
-            }
-
-            if (nearestTarget != null)
-            {
-                return nearestTarget;
-            }
-        }
+        bestTarget = null;
+        bestScore = -999f;
 
         for (i = 0; i < players.Length; i++)
         {
-            currentDistance = Vector2.Distance(transform.position, players[i].transform.position);
-
-            if (currentDistance < nearestDistance && currentDistance <= targetSearchRadius)
-            {
-                nearestDistance = currentDistance;
-                nearestTarget = players[i].transform;
-            }
+            EvaluateTarget(players[i].transform, ref bestTarget, ref bestScore);
         }
-
-        teammates = GameObject.FindGameObjectsWithTag("Teammate");
 
         for (i = 0; i < teammates.Length; i++)
         {
-            currentDistance = Vector2.Distance(transform.position, teammates[i].transform.position);
+            EvaluateTarget(teammates[i].transform, ref bestTarget, ref bestScore);
+        }
 
-            if (currentDistance < nearestDistance && currentDistance <= targetSearchRadius)
+        return bestTarget;
+    }
+
+    private void EvaluateTarget(Transform candidate, ref Transform bestTarget, ref float bestScore)
+    {
+        CharacterStats targetStats;
+        Health targetHealth;
+        float distance;
+        float score;
+
+        if (candidate == null)
+        {
+            return;
+        }
+
+        targetHealth = candidate.GetComponent<Health>();
+
+        if (targetHealth == null || targetHealth.GetIsDead())
+        {
+            return;
+        }
+
+        distance = Vector2.Distance(transform.position, candidate.position);
+
+        if (distance > targetSearchRadius)
+        {
+            return;
+        }
+
+        score = -distance;
+
+        if (aiProfile != null)
+        {
+            if (aiProfile.prioritizePlayerCharacter && candidate.CompareTag("Player"))
             {
-                nearestDistance = currentDistance;
-                nearestTarget = teammates[i].transform;
+                score = score + 4f;
+            }
+
+            if (aiProfile.focusFireLowestHealth)
+            {
+                score = score + (1f - GetTargetHealthRatio(candidate)) * 5f;
+            }
+
+            if (aiProfile.tacticStyle == EnemyTacticStyle.Shadow)
+            {
+                targetStats = candidate.GetComponent<CharacterStats>();
+
+                if (targetStats != null)
+                {
+                    if (targetStats.weaponType == WeaponType.Ranged)
+                    {
+                        score = score + 6f;
+                    }
+                    else if (targetStats.weaponType == WeaponType.Polearm)
+                    {
+                        score = score + 3f;
+                    }
+                }
             }
         }
 
-        return nearestTarget;
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestTarget = candidate;
+        }
     }
 
-    // Used to calculate whether the weapon can hit the target; if not, move towards the target.
+    private float GetTargetHealthRatio(Transform candidate)
+    {
+        Health h;
+        CharacterStats s;
+
+        h = candidate.GetComponent<Health>();
+        s = candidate.GetComponent<CharacterStats>();
+
+        if (h == null || s == null || s.GetEffectiveMaxHealth() <= 0f)
+        {
+            return 1f;
+        }
+
+        return h.GetCurrentHealth() / s.GetEffectiveMaxHealth();
+    }
+
     private bool ShouldMoveToTarget(Vector2 toTarget)
     {
         float absX;
@@ -495,6 +815,26 @@ public class EnemyController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private Vector2 GetApproachMoveDirection(Vector2 toTarget)
+    {
+        if (stats == null)
+        {
+            return toTarget.normalized;
+        }
+
+        if (stats.weaponType == WeaponType.Ranged)
+        {
+            return toTarget.normalized;
+        }
+
+        if (Mathf.Abs(toTarget.y) > stats.meleeVerticalTolerance)
+        {
+            return new Vector2(0f, Mathf.Sign(toTarget.y));
+        }
+
+        return new Vector2(Mathf.Sign(toTarget.x), 0f);
     }
 
     public void SetTarget(Transform newTarget)

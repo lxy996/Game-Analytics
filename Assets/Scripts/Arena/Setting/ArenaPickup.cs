@@ -83,4 +83,19 @@ public abstract class ArenaPickup : MonoBehaviour
 
     // The specific effects are implemented by the Child Class of this script.
     protected abstract bool TryApplyPickup(Collider2D other);
+
+    public bool CanBePickedByPlayer()
+    {
+        return allowPlayer;
+    }
+
+    public bool CanBePickedByAlly()
+    {
+        return allowAlly;
+    }
+
+    public bool CanBePickedByEnemy()
+    {
+        return allowEnemy;
+    }
 }

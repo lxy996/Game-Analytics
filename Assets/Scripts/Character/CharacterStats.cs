@@ -32,6 +32,12 @@ public class CharacterStats : MonoBehaviour
     [Header("Melee Hit Shape")]
     public int meleeHitSampleCount = 3;
 
+    [Header("Advanced Combat")]
+    public float lifeStealPercent = 0f;
+    public float healthRegenPerSecond = 0f;
+    public int guardBlockCountPerUse = 1;
+    public float bonusMaxHealth = 0f;
+
     public float GetAttackCooldown()
     {
         if (attackSpeedMultiplier <= 0f)
@@ -64,6 +70,10 @@ public class CharacterStats : MonoBehaviour
         dashUseDistance = loadout.dashUseDistance;
         meleeVerticalTolerance = loadout.meleeVerticalTolerance;
         meleeHitSampleCount = loadout.meleeHitSampleCount;
+    }
+    public float GetEffectiveMaxHealth()
+    {
+        return maxHealth + bonusMaxHealth;
     }
 
 }

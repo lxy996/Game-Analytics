@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45b8c5a8ebd7ca6498dc59fab45e434b, type: 3}
+  m_Name: BerserkerFamily
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaTeamRosterPresetData
+  rosterName: Berserker Family
+  defaultTheme: {fileID: 11400000, guid: 5476061bb6fa35c4cb7b9148a6864375, type: 2}
+  enemyAIProfile: {fileID: 11400000, guid: 33eaa3cda01bc4f4a9d05ddfed8b38d5, type: 2}
+  overrideFormation: 1
+  formationOverride:
+    frontLineDistance: 2.2
+    middleLineDistance: 3.5
+    backLineDistance: 4.6
+    verticalSpacing: 4
+    depthOffset: -0.4
+    centerYOffset: 0
+  fighters:
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: d4d57c4f4dc5e3543b0e518dc9ac680f, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: d4d57c4f4dc5e3543b0e518dc9ac680f, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: fa602b6c05ab9b64989dd95b242a993e, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
+    spawnAsPlayerControlled: 0

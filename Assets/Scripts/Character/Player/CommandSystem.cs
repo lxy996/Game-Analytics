@@ -16,6 +16,10 @@ public class CommandSystem : MonoBehaviour
     private List<AllyController> selectedAllies = new List<AllyController>();
     private AllySelectionGroup currentGroup = AllySelectionGroup.All;
     //private KeyCode pendingFunctionKey = KeyCode.None;
+
+    private string lastIssuedCommandName = "Auto Combat";
+    private Transform lastIssuedCommandTarget;
+
     void Awake()
     {
         if (mainCamera == null)
@@ -194,6 +198,9 @@ public class CommandSystem : MonoBehaviour
         {
             OnCommandIssued("Focus Target", hit.transform);
         }
+
+        lastIssuedCommandName = "Focus Target";
+        lastIssuedCommandTarget = hit.transform;
     }
 
     private void FollowPlayerCommand()
@@ -216,6 +223,9 @@ public class CommandSystem : MonoBehaviour
         {
             OnCommandIssued("Follow Player", null);
         }
+
+        lastIssuedCommandName = "Follow Player";
+        lastIssuedCommandTarget = null;
     }
 
     private void AutoCombatCommand()
@@ -237,6 +247,34 @@ public class CommandSystem : MonoBehaviour
         {
             OnCommandIssued("Auto Combat", null);
         }
+
+        lastIssuedCommandName = "Auto Combat";
+        lastIssuedCommandTarget = null;
+    }
+
+    public AllySelectionGroup GetCurrentGroup()
+    {
+        return currentGroup;
+    }
+
+    public int GetSelectedCount()
+    {
+        if (selectedAllies == null)
+        {
+            return 0;
+        }
+
+        return selectedAllies.Count;
+    }
+
+    public string GetLastIssuedCommandName()
+    {
+        return lastIssuedCommandName;
+    }
+
+    public Transform GetLastIssuedCommandTarget()
+    {
+        return lastIssuedCommandTarget;
     }
 
     void OnDrawGizmosSelected()

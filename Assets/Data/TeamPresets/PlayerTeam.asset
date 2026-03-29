@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaTeamRosterPresetData
   rosterName: Player Team
   defaultTheme: {fileID: 11400000, guid: 89a511c9e342a2e44a2f67e06f11d5b3, type: 2}
+  enemyAIProfile: {fileID: 0}
   overrideFormation: 0
   formationOverride:
     frontLineDistance: 3
@@ -36,6 +37,10 @@ MonoBehaviour:
     selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 43c65df6f7c7cba47a1736f8b990b5e3, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: b0f8d259021996740b9b2124f76f9981, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: d0234170d4574d14b930e046fada457d, type: 2}
     selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
     spawnAsPlayerControlled: 0

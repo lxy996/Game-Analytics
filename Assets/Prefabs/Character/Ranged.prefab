@@ -162,7 +162,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!70 &9103663620853633523
 CapsuleCollider2D:
@@ -229,6 +229,10 @@ MonoBehaviour:
   dashUseDistance: 6
   meleeVerticalTolerance: 0.25
   meleeHitSampleCount: 3
+  lifeStealPercent: 0
+  healthRegenPerSecond: 0
+  guardBlockCountPerUse: 1
+  bonusMaxHealth: 0
 --- !u!114 &5196863680650070018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,7 +294,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillController
   dashDistance: 5
+  dashDuration: 0.09
   dashCooldown: 3
+  dashVfxPrefab: {fileID: 0}
 --- !u!114 &1898938163608187028
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff5157f070e4a8749becb3d1c9422259, type: 3}
+  m_Name: Hard3V3
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaMatchPresetData
+  matchName: Hard 3V3
+  playerFighterCount: 3
+  enemyFighterCount: 3
+  playerRosterPreset: {fileID: 11400000, guid: 775783d3d293931488fdb93ae5eaaed6, type: 2}
+  enemyRosterMode: 1
+  enemyTeamPresetPool: []
+  enemyGladiatorPool:
+  - {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
+  - {fileID: 11400000, guid: d4d57c4f4dc5e3543b0e518dc9ac680f, type: 2}
+  - {fileID: 11400000, guid: fa602b6c05ab9b64989dd95b242a993e, type: 2}
+  - {fileID: 11400000, guid: 485777d9920997945bda4a42d6e13401, type: 2}
+  - {fileID: 11400000, guid: 5e91305b0f7f407439818ab6066d6bc4, type: 2}
+  - {fileID: 11400000, guid: 350ee0cca5a470741b54f5df10c496fb, type: 2}
+  randomizeEnemyTheme: 1
+  enemyThemePool:
+  - {fileID: 11400000, guid: 8baec252360fd014099c6d6c45564945, type: 2}
+  - {fileID: 11400000, guid: 5476061bb6fa35c4cb7b9148a6864375, type: 2}
+  - {fileID: 11400000, guid: ffeeee5f6cf5e3343a387ed9b24d287d, type: 2}
+  allowDuplicateEnemyProfiles: 1
+  randomizeEnemyLoadouts: 0

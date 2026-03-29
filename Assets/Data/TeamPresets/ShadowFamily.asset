@@ -14,28 +14,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaTeamRosterPresetData
   rosterName: Shadow Family
   defaultTheme: {fileID: 11400000, guid: 8baec252360fd014099c6d6c45564945, type: 2}
-  overrideFormation: 0
+  enemyAIProfile: {fileID: 11400000, guid: c93890e69fc726145ab2038416c3f0e6, type: 2}
+  overrideFormation: 1
   formationOverride:
-    frontLineDistance: 3
-    middleLineDistance: 5
-    backLineDistance: 7
-    verticalSpacing: 5
-    depthOffset: 0
+    frontLineDistance: 2.8
+    middleLineDistance: 4.8
+    backLineDistance: 7.6
+    verticalSpacing: 5.2
+    depthOffset: -0.2
     centerYOffset: 0
   fighters:
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 830b0936b9ce94d4db93780ce2872188, type: 2}
-    selectedLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 43c65df6f7c7cba47a1736f8b990b5e3, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: d4d57c4f4dc5e3543b0e518dc9ac680f, type: 2}
     selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 830b0936b9ce94d4db93780ce2872188, type: 2}
-    selectedLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: d4d57c4f4dc5e3543b0e518dc9ac680f, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: 56cf34096f7762544ad0bcaf16f86d32, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 98f8266c8c9ee0442b051dd2146a10aa, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
     selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
     spawnAsPlayerControlled: 0

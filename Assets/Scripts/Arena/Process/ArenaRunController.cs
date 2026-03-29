@@ -42,12 +42,14 @@ public class ArenaRunController : MonoBehaviour
 
     [Header("Pre-Match UI")]
     [SerializeField] private TMP_Text matchTitleText;
-    [SerializeField] private TMP_Text enemyInfoText;
+    [SerializeField] private TMP_Text ruleInfoText;
     [SerializeField] private Button startMatchButton;
     [SerializeField] private Button backToLobbyButton;
     [SerializeField] private Button openProficiencyButton;
     [SerializeField] private Transform loadoutRowContainer;
     [SerializeField] private GameObject loadoutRowPrefab;
+    [SerializeField] private Transform enemyPreviewContainer;
+    [SerializeField] private GameObject enemyPreviewCardPrefab;
 
     [Header("Result UI")]
     [SerializeField] private TMP_Text resultSummaryText;
@@ -57,6 +59,10 @@ public class ArenaRunController : MonoBehaviour
 
     private readonly List<ArenaLoadoutRowUI> activeRows = new List<ArenaLoadoutRowUI>();
     private readonly HashSet<string> clearedFamilyIds = new HashSet<string>();
+
+    private List<ArenaMatchFighterEntry> cachedEnemyPreviewRoster = new List<ArenaMatchFighterEntry>();
+    private ArenaTeamThemeData cachedEnemyPreviewTheme;
+    private string lastProgressGainSummary = "";
 
     private ArenaMatchPresetData selectedPreset;
     private FamilyChallengeDefinitionData selectedChallenge;
@@ -100,7 +106,7 @@ public class ArenaRunController : MonoBehaviour
         if (backToLobbyButton != null)
         {
             backToLobbyButton.onClick.RemoveAllListeners();
-            backToLobbyButton.onClick.AddListener(ShowNormalBattleList);
+            backToLobbyButton.onClick.AddListener(ShowLobbyRoot);
         }
 
         if (retryMatchButton != null)
@@ -112,7 +118,7 @@ public class ArenaRunController : MonoBehaviour
         if (returnToLobbyButton != null)
         {
             returnToLobbyButton.onClick.RemoveAllListeners();
-            returnToLobbyButton.onClick.AddListener(ShowNormalBattleList);
+            returnToLobbyButton.onClick.AddListener(ShowLobbyRoot);
         }
 
         if (nextNormalBattleButton != null)
@@ -132,6 +138,7 @@ public class ArenaRunController : MonoBehaviour
     {
         RebuildNormalBattleButtons();
         RebuildChallengeButtons();
+        ForceRebuildAllMainLayouts();
     }
 
     private void RebuildNormalBattleButtons()
@@ -276,15 +283,15 @@ public class ArenaRunController : MonoBehaviour
             }
         }
 
-        if (enemyInfoText != null)
+        if (ruleInfoText != null)
         {
-            enemyInfoText.text =
-                "Number of Enemy Side: " + selectedPreset.enemyFighterCount +
-                "\nEnemy Spawn Mode: " + selectedPreset.enemyRosterMode +
-                "\nNumber of Player Side: " + selectedPreset.playerFighterCount;
+            ruleInfoText.text =
+                selectedPreset.playerFighterCount + " VS " + selectedPreset.enemyFighterCount;
         }
 
         RebuildPlayerLoadoutRows(selectedPreset);
+        BuildEnemyPreviewCache(selectedPreset);
+        RebuildEnemyPreviewRows();
 
         if (lobbyPanel != null)
         {
@@ -338,7 +345,7 @@ public class ArenaRunController : MonoBehaviour
             return;
         }
 
-        entries = BuildPlayerEntriesFromPreset(playerPreset, preset.playerFighterCount);
+        entries = BuildPlayerEntriesFromPreset(playerPreset, 999);
         profiles = new List<GladiatorProfileData>();
 
         for (i = 0; i < entries.Count; i++)
@@ -346,6 +353,8 @@ public class ArenaRunController : MonoBehaviour
             GameObject rowObject;
             ArenaLoadoutRowUI rowUI;
             string summary;
+            bool shouldSelect;
+            bool locked;
 
             if (loadoutRowContainer == null || loadoutRowPrefab == null)
             {
@@ -361,8 +370,13 @@ public class ArenaRunController : MonoBehaviour
             }
 
             summary = BuildRowSummary(entries[i].gladiatorProfile);
-            rowUI.Setup(entries[i], summary);
+            rowUI.Setup(entries[i], summary, true, TeamVisualColor.Blue);
             activeRows.Add(rowUI);
+
+            locked = entries[i].spawnAsPlayerControlled;
+            shouldSelect = locked || i < preset.playerFighterCount;
+
+            rowUI.SetSelectionState(shouldSelect, locked);
 
             if (entries[i].gladiatorProfile != null && !profiles.Contains(entries[i].gladiatorProfile))
             {
@@ -374,6 +388,8 @@ public class ArenaRunController : MonoBehaviour
         {
             proficiencyPanel.SetProfiles(profiles);
         }
+
+        ForceRebuildLayout(loadoutRowContainer);
     }
 
     private string BuildRowSummary(GladiatorProfileData profile)
@@ -386,9 +402,11 @@ public class ArenaRunController : MonoBehaviour
         progressionManager.EnsureProfileInitialized(profile);
 
         return
-            "One-handed Weapon " + progressionManager.GetLevel(profile, GladiatorProficiencyType.OneHanded) +
-            "   Polearm Weapon " + progressionManager.GetLevel(profile, GladiatorProficiencyType.Polearm) +
-            "   Bow " + progressionManager.GetLevel(profile, GladiatorProficiencyType.Bow);
+            "One-handed " + progressionManager.GetLevel(profile, GladiatorProficiencyType.OneHanded) +
+            "   Polearm " + progressionManager.GetLevel(profile, GladiatorProficiencyType.Polearm) +
+            "   Bow " + progressionManager.GetLevel(profile, GladiatorProficiencyType.Bow) +
+            "   Running " + progressionManager.GetLevel(profile, GladiatorProficiencyType.Running) +
+            "   Shield " + progressionManager.GetLevel(profile, GladiatorProficiencyType.Shield);
     }
 
     private List<ArenaMatchFighterEntry> BuildPlayerEntriesFromPreset(
@@ -437,6 +455,73 @@ public class ArenaRunController : MonoBehaviour
         return result;
     }
 
+    private void BuildEnemyPreviewCache(ArenaMatchPresetData preset)
+    {
+        cachedEnemyPreviewRoster.Clear();
+        cachedEnemyPreviewTheme = null;
+
+        if (preset == null || matchSetup == null)
+        {
+            return;
+        }
+
+        matchSetup.BuildPreviewEnemyData(
+            preset,
+            out cachedEnemyPreviewRoster,
+            out cachedEnemyPreviewTheme
+        );
+    }
+
+    private void RebuildEnemyPreviewRows()
+    {
+        int i;
+
+        ClearChildren(enemyPreviewContainer);
+
+        if (enemyPreviewContainer == null || enemyPreviewCardPrefab == null)
+        {
+            return;
+        }
+
+        for (i = 0; i < cachedEnemyPreviewRoster.Count; i++)
+        {
+            GameObject rowObject;
+            ArenaLoadoutRowUI rowUI;
+            string summary;
+            TeamVisualColor previewColor;
+
+            if (cachedEnemyPreviewRoster[i] == null)
+            {
+                continue;
+            }
+
+            rowObject = Instantiate(enemyPreviewCardPrefab, enemyPreviewContainer);
+            rowUI = rowObject.GetComponent<ArenaLoadoutRowUI>();
+
+            if (rowUI == null)
+            {
+                continue;
+            }
+
+            summary = BuildRowSummary(cachedEnemyPreviewRoster[i].gladiatorProfile);
+            previewColor = TeamVisualColor.Blue;
+
+            if (cachedEnemyPreviewTheme != null)
+            {
+                previewColor = cachedEnemyPreviewTheme.GetTeamColor();
+            }
+
+            rowUI.Setup(
+                cachedEnemyPreviewRoster[i],
+                summary,
+                false,
+                previewColor
+            );
+        }
+
+        ForceRebuildLayout(enemyPreviewContainer);
+    }
+
     public void StartSelectedMatch()
     {
         List<ArenaMatchFighterEntry> runtimePlayerRoster;
@@ -449,7 +534,24 @@ public class ArenaRunController : MonoBehaviour
         runtimePlayerRoster = BuildRuntimePlayerRosterFromRows();
         lastMatchGrantedFirstClearReward = false;
 
-        matchSetup.BuildConfiguredMatch(selectedPreset, runtimePlayerRoster);
+        if (runtimePlayerRoster.Count != selectedPreset.playerFighterCount)
+        {
+            if (ruleInfoText != null)
+            {
+                ruleInfoText.text =
+                    "Please select exactly " + selectedPreset.playerFighterCount +
+                    " fighters.\nPlayer leader must be included.";
+            }
+
+            return;
+        }
+
+        matchSetup.BuildConfiguredMatch(
+            selectedPreset,
+            runtimePlayerRoster,
+            cachedEnemyPreviewRoster,
+            cachedEnemyPreviewTheme
+            );
 
         if (progressionManager != null)
         {
@@ -493,12 +595,24 @@ public class ArenaRunController : MonoBehaviour
 
         for (i = 0; i < activeRows.Count; i++)
         {
+            ArenaMatchFighterEntry entry;
+
             if (activeRows[i] == null)
             {
                 continue;
             }
 
-            result.Add(activeRows[i].BuildRuntimeEntry());
+            if (!activeRows[i].GetIsSelectedForMatch())
+            {
+                continue;
+            }
+
+            entry = activeRows[i].BuildRuntimeEntry();
+
+            if (entry != null && entry.includeInMatch)
+            {
+                result.Add(entry);
+            }
         }
 
         return result;
@@ -526,9 +640,11 @@ public class ArenaRunController : MonoBehaviour
             playerWon = matchManager.GetLastPlayerWon();
         }
 
+        lastProgressGainSummary = "";
+
         if (progressionManager != null && matchManager != null)
         {
-            progressionManager.AwardPostMatchExperience(
+            lastProgressGainSummary = progressionManager.AwardPostMatchExperienceAndBuildSummary(
                 runtimePlayerRoster,
                 playerWon,
                 matchManager.GetPlayerSideKills()
@@ -574,19 +690,24 @@ public class ArenaRunController : MonoBehaviour
         if (resultSummaryText != null && matchManager != null)
         {
             resultSummaryText.text =
-                (playerWon ? "Victory" : "Defeat") +
-                "\nScore: " + matchManager.GetPerformanceScore() +
-                "\nKills: " + matchManager.GetPlayerSideKills() +
+                (playerWon ? "VICTORY" : "DEFEAT") +
+                "\n\nSCORE: " + matchManager.GetPerformanceScore() +
+                "\nKILLS: " + matchManager.GetPlayerSideKills() +
                 " - " + matchManager.GetEnemySideKills();
 
             if (!string.IsNullOrEmpty(rewardText))
             {
                 resultSummaryText.text = resultSummaryText.text + "\nFirst win reward: " + rewardText;
             }
-            else if (selectedChallenge != null && !lastMatchGrantedFirstClearReward)
+            else if (playerWon && selectedChallenge != null && clearedFamilyIds.Contains(selectedChallenge.familyId) && !lastMatchGrantedFirstClearReward)
             {
                 resultSummaryText.text = resultSummaryText.text + "\nThe family's first win reward has been won.";
             }
+        }
+
+        if (!string.IsNullOrEmpty(lastProgressGainSummary))
+        {
+            resultSummaryText.text = resultSummaryText.text + "\n\nProficiency Upgrade:\n" + lastProgressGainSummary;
         }
 
         if (nextNormalBattleButton != null)
@@ -595,7 +716,7 @@ public class ArenaRunController : MonoBehaviour
         }
     }
 
-    private void ToggleProficiencyPanel()
+    public void ToggleProficiencyPanel()
     {
         if (proficiencyPanelRoot == null)
         {
@@ -603,6 +724,16 @@ public class ArenaRunController : MonoBehaviour
         }
 
         proficiencyPanelRoot.SetActive(!proficiencyPanelRoot.activeSelf);
+    }
+
+    public void CloseProficiencyPanel()
+    {
+        if (proficiencyPanelRoot == null)
+        {
+            return;
+        }
+
+        proficiencyPanelRoot.SetActive(false);
     }
 
     private void RetryCurrentBattle()
@@ -788,6 +919,87 @@ public class ArenaRunController : MonoBehaviour
         {
             proficiencyPanelRoot.SetActive(false);
         }
+    }
+
+    private void ShowLobbyRoot()
+    {
+        if (matchSetup != null)
+        {
+            matchSetup.ClearCurrentCombatants();
+        }
+
+        if (eventSpawner != null)
+        {
+            eventSpawner.EndMatchCycle();
+        }
+
+        if (lobbyPanel != null)
+        {
+            lobbyPanel.SetActive(true);
+        }
+
+        if (normalListPanel != null)
+        {
+            normalListPanel.SetActive(false);
+        }
+
+        if (challengeListPanel != null)
+        {
+            challengeListPanel.SetActive(false);
+        }
+
+        if (specialListPanel != null)
+        {
+            specialListPanel.SetActive(false);
+        }
+
+        if (preMatchPanel != null)
+        {
+            preMatchPanel.SetActive(false);
+        }
+
+        if (battleHudRoot != null)
+        {
+            battleHudRoot.SetActive(false);
+        }
+
+        if (resultPanel != null)
+        {
+            resultPanel.SetActive(false);
+        }
+
+        if (proficiencyPanelRoot != null)
+        {
+            proficiencyPanelRoot.SetActive(false);
+        }
+    }
+
+    private void ForceRebuildLayout(Transform root)
+    {
+        RectTransform rect;
+
+        if (root == null)
+        {
+            return;
+        }
+
+        rect = root as RectTransform;
+
+        if (rect == null)
+        {
+            return;
+        }
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+    }
+
+    private void ForceRebuildAllMainLayouts()
+    {
+        ForceRebuildLayout(normalListContainer);
+        ForceRebuildLayout(challengeListContainer);
+        ForceRebuildLayout(loadoutRowContainer);
+        ForceRebuildLayout(enemyPreviewContainer);
     }
 
     private void ClearChildren(Transform parent)

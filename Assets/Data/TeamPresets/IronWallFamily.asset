@@ -14,32 +14,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaTeamRosterPresetData
   rosterName: Iron Wall Family
   defaultTheme: {fileID: 11400000, guid: ffeeee5f6cf5e3343a387ed9b24d287d, type: 2}
-  overrideFormation: 0
+  enemyAIProfile: {fileID: 11400000, guid: b419521608d8a1049ae2a03825f776c0, type: 2}
+  overrideFormation: 1
   formationOverride:
-    frontLineDistance: 3
-    middleLineDistance: 5
-    backLineDistance: 7
-    verticalSpacing: 5
+    frontLineDistance: 3.2
+    middleLineDistance: 4.6
+    backLineDistance: 6
+    verticalSpacing: 3
     depthOffset: 0
     centerYOffset: 0
   fighters:
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 98f8266c8c9ee0442b051dd2146a10aa, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
     selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 98f8266c8c9ee0442b051dd2146a10aa, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
     selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 830b0936b9ce94d4db93780ce2872188, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: 077044d769c110c4f80547b3bef451cb, type: 2}
+    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
+    spawnAsPlayerControlled: 0
+  - includeInMatch: 1
+    gladiatorProfile: {fileID: 11400000, guid: fa602b6c05ab9b64989dd95b242a993e, type: 2}
     selectedLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
     spawnAsPlayerControlled: 0
   - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 98f8266c8c9ee0442b051dd2146a10aa, type: 2}
-    selectedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}
-    spawnAsPlayerControlled: 0
-  - includeInMatch: 1
-    gladiatorProfile: {fileID: 11400000, guid: 830b0936b9ce94d4db93780ce2872188, type: 2}
+    gladiatorProfile: {fileID: 11400000, guid: fa602b6c05ab9b64989dd95b242a993e, type: 2}
     selectedLoadout: {fileID: 11400000, guid: 04de48a304e7fe142844beeb05edd092, type: 2}
     spawnAsPlayerControlled: 0

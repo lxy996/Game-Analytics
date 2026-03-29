@@ -19,6 +19,12 @@ public class AllyController : MonoBehaviour
 
     private float guardEndTime = -1f;
 
+    private float avoidHazardUntil = -1f;
+    private Vector2 avoidHazardDirection = Vector2.zero;
+
+    private float nextPickupSearchTime = 0f;
+    private Transform cachedPickupTarget;
+
     void Awake()
     {
         motor = GetComponent<CharacterMotor>();
@@ -101,105 +107,74 @@ public class AllyController : MonoBehaviour
 
     private bool HandleHazardAvoidance()
     {
-        ArenaHazardSense[] hazards;
-        ArenaHazardSense closestHazard;
-        float closestDistance;
-        int i;
+        ArenaHazardSense hazard;
+        float distance;
 
-        hazards = Object.FindObjectsByType<ArenaHazardSense>(FindObjectsSortMode.None);
-        closestHazard = null;
-        closestDistance = Mathf.Infinity;
+        hazard = FindClosestDangerousHazard();
 
-        for (i = 0; i < hazards.Length; i++)
+        if (hazard != null)
         {
-            float distance;
+            distance = Vector2.Distance(transform.position, hazard.transform.position);
 
-            if (hazards[i] == null)
+            if (distance <= hazard.GetDangerRadius() + 2f)
             {
-                continue;
-            }
+                avoidHazardDirection = ((Vector2)(transform.position - hazard.transform.position)).normalized;
 
-            if (!hazards[i].IsDangerousFor(true))
-            {
-                continue;
-            }
+                if (avoidHazardDirection.sqrMagnitude < 0.01f)
+                {
+                    avoidHazardDirection = Random.insideUnitCircle.normalized;
+                }
 
-            distance = Vector2.Distance(transform.position, hazards[i].transform.position);
-
-            if (distance > hazards[i].GetDangerRadius() + 2f)
-            {
-                continue;
-            }
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestHazard = hazards[i];
+                avoidHazardUntil = Time.time + 0.45f;
             }
         }
 
-        if (closestHazard == null)
+        if (Time.time < avoidHazardUntil)
         {
-            return false;
+            motor.SetMoveInput(avoidHazardDirection);
+            return true;
         }
 
-        motor.SetMoveInput((transform.position - closestHazard.transform.position).normalized);
-        return true;
+        return false;
     }
 
     private bool HandlePickupSeek()
     {
-        ArenaPickupAIHint[] pickups;
         ArenaPickupAIHint bestPickup;
-        float bestScore;
-        int i;
+        Vector2 toPickup;
 
-        if (GetHealthRatio() >= 0.65f)
+        if (HasImmediateCombatPressure())
+        {
+            cachedPickupTarget = null;
+            return false;
+        }
+
+        if (GetHealthRatio() > 0.65f)
+        {
+            cachedPickupTarget = null;
+            return false;
+        }
+
+        if (Time.time >= nextPickupSearchTime || cachedPickupTarget == null)
+        {
+            bestPickup = FindBestPickupForAlly();
+            cachedPickupTarget = bestPickup != null ? bestPickup.transform : null;
+            nextPickupSearchTime = Time.time + 0.35f;
+        }
+
+        if (cachedPickupTarget == null)
         {
             return false;
         }
 
-        pickups = Object.FindObjectsByType<ArenaPickupAIHint>(FindObjectsSortMode.None);
-        bestPickup = null;
-        bestScore = -999f;
+        toPickup = cachedPickupTarget.position - transform.position;
 
-        for (i = 0; i < pickups.Length; i++)
-        {
-            float distance;
-            float score;
-
-            if (pickups[i] == null)
-            {
-                continue;
-            }
-
-            if (pickups[i].GetHintType() != ArenaPickupAIHintType.Heal)
-            {
-                continue;
-            }
-
-            distance = Vector2.Distance(transform.position, pickups[i].transform.position);
-
-            if (distance > 6f)
-            {
-                continue;
-            }
-
-            score = pickups[i].GetPriority() - distance * 0.15f;
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                bestPickup = pickups[i];
-            }
-        }
-
-        if (bestPickup == null)
+        if (toPickup.sqrMagnitude < 0.04f)
         {
             return false;
         }
 
-        motor.SetMoveInput((bestPickup.transform.position - transform.position).normalized);
+        motor.SetMoveInput(toPickup.normalized);
         return true;
     }
 
@@ -240,7 +215,7 @@ public class AllyController : MonoBehaviour
 
         if (ShouldMoveToTarget(toTarget))
         {
-            moveDirection = toTarget.normalized;
+            moveDirection = GetApproachMoveDirection(toTarget);
             motor.SetMoveInput(moveDirection);
 
             if (skills != null)
@@ -286,7 +261,7 @@ public class AllyController : MonoBehaviour
 
         if (ShouldMoveToTarget(toTarget))
         {
-            moveDirection = toTarget.normalized;
+            moveDirection = GetApproachMoveDirection(toTarget);
             motor.SetMoveInput(moveDirection);
 
             if (skills != null)
@@ -368,6 +343,26 @@ public class AllyController : MonoBehaviour
         return false;
     }
 
+    private Vector2 GetApproachMoveDirection(Vector2 toTarget)
+    {
+        if (stats == null)
+        {
+            return toTarget.normalized;
+        }
+
+        if (stats.weaponType == WeaponType.Ranged)
+        {
+            return toTarget.normalized;
+        }
+
+        if (Mathf.Abs(toTarget.y) > stats.meleeVerticalTolerance)
+        {
+            return new Vector2(0f, Mathf.Sign(toTarget.y));
+        }
+
+        return new Vector2(Mathf.Sign(toTarget.x), 0f);
+    }
+
     private void StartTimedGuard()
     {
         if (combat == null)
@@ -401,6 +396,48 @@ public class AllyController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private ArenaHazardSense FindClosestDangerousHazard()
+    {
+        ArenaHazardSense[] hazards;
+        ArenaHazardSense closestHazard;
+        float closestDistance;
+        int i;
+
+        hazards = Object.FindObjectsByType<ArenaHazardSense>(FindObjectsSortMode.None);
+        closestHazard = null;
+        closestDistance = Mathf.Infinity;
+
+        for (i = 0; i < hazards.Length; i++)
+        {
+            float distance;
+
+            if (hazards[i] == null)
+            {
+                continue;
+            }
+
+            if (!hazards[i].IsDangerousFor(true))
+            {
+                continue;
+            }
+
+            distance = Vector2.Distance(transform.position, hazards[i].transform.position);
+
+            if (distance > hazards[i].GetDangerRadius() + 2f)
+            {
+                continue;
+            }
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestHazard = hazards[i];
+            }
+        }
+
+        return closestHazard;
     }
 
     // The functions are the same as those in the Enemy controller.
@@ -464,6 +501,73 @@ public class AllyController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool HasImmediateCombatPressure()
+    {
+        if (!TargetIsInvalid())
+        {
+            if (Vector2.Distance(transform.position, target.position) <= 2.2f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private ArenaPickupAIHint FindBestPickupForAlly()
+    {
+        ArenaPickupAIHint[] pickups;
+        ArenaPickupAIHint bestPickup;
+        float bestScore;
+        int i;
+
+        pickups = Object.FindObjectsByType<ArenaPickupAIHint>(FindObjectsSortMode.None);
+        bestPickup = null;
+        bestScore = -999f;
+
+        for (i = 0; i < pickups.Length; i++)
+        {
+            float distance;
+            float score;
+
+            if (pickups[i] == null)
+            {
+                continue;
+            }
+
+            if (!pickups[i].CanBePickedByAlly())
+            {
+                continue;
+            }
+
+            distance = Vector2.Distance(transform.position, pickups[i].transform.position);
+
+            if (distance > 6f)
+            {
+                continue;
+            }
+
+            score = pickups[i].GetPriority() - distance * 0.18f;
+
+            if (pickups[i].GetHintType() == ArenaPickupAIHintType.Heal)
+            {
+                score = score + 6f;
+            }
+            else
+            {
+                score = score - 2f;
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestPickup = pickups[i];
+            }
+        }
+
+        return bestPickup;
     }
 
     public void SetTarget(Transform newTarget)

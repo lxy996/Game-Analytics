@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cd861b4d18bfa94788097b7eb5746a5, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponLoadoutData
+  weaponType: 0
+  animatorController: {fileID: 9100000, guid: b0c7a0378cfb1994980ea8ec1b6840f5, type: 2}
+  idleSprite: {fileID: 7384290322352760091, guid: 8f2ab8033e1d117409cdeae2fe592469, type: 3}
+  teamVisualVariants:
+  - teamColor: 0
+    animatorController: {fileID: 9100000, guid: b0c7a0378cfb1994980ea8ec1b6840f5, type: 2}
+    idleSprite: {fileID: 7384290322352760091, guid: 8f2ab8033e1d117409cdeae2fe592469, type: 3}
+  - teamColor: 3
+    animatorController: {fileID: 9100000, guid: fe232b9e73c7ec349a2c0b259166175c, type: 2}
+    idleSprite: {fileID: 7384290322352760091, guid: 5215b46cdbed8b24b987211472ec1872, type: 3}
+  - teamColor: 1
+    animatorController: {fileID: 9100000, guid: 79730faf7fd826f46adcad8f06d0f139, type: 2}
+    idleSprite: {fileID: 7384290322352760091, guid: e97c5a8ab7f49f447a3514e8d636ced6, type: 3}
+  - teamColor: 2
+    animatorController: {fileID: 9100000, guid: b43cfb9879dc29d4f94315096e4b9232, type: 2}
+    idleSprite: {fileID: 7384290322352760091, guid: 2d63cd84822731149b0cb9ab5432c9ce, type: 3}
+  pickupIcon: {fileID: 21300000, guid: 256205b9c6ca12c45ab7762da8a65631, type: 3}
+  attackDamage: 20
+  baseAttackCooldown: 1
+  attackRange: 1.2
+  attackRadius: 0.5
+  attackWindup: 0.2
+  attackRecovery: 0.325
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 8
+  projectileLifetime: 0
+  hasShield: 1
+  guardCooldown: 1
+  stopDistance: 1.2
+  dashUseDistance: 6
+  meleeVerticalTolerance: 0.35
+  meleeHitSampleCount: 3

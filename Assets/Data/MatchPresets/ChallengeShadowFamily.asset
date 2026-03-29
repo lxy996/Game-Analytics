@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff5157f070e4a8749becb3d1c9422259, type: 3}
+  m_Name: ChallengeShadowFamily
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaMatchPresetData
+  matchName: Challenge Shadow Family
+  playerFighterCount: 5
+  enemyFighterCount: 5
+  playerRosterPreset: {fileID: 11400000, guid: 775783d3d293931488fdb93ae5eaaed6, type: 2}
+  enemyRosterMode: 0
+  enemyTeamPresetPool:
+  - {fileID: 11400000, guid: 4149edade6596f746a43b6aec9364797, type: 2}
+  enemyGladiatorPool: []
+  randomizeEnemyTheme: 1
+  enemyThemePool:
+  - {fileID: 11400000, guid: 8baec252360fd014099c6d6c45564945, type: 2}
+  allowDuplicateEnemyProfiles: 0
+  randomizeEnemyLoadouts: 0

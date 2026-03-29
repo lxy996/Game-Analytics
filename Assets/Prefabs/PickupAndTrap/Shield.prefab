@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDropPickup
   allowPlayer: 1
-  allowAlly: 1
+  allowAlly: 0
   allowEnemy: 0
   destroyOnPickup: 1
   droppedLoadout: {fileID: 11400000, guid: cb5997cacab646a49b13c8e5b31bec54, type: 2}

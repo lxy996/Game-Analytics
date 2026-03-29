@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6358026d0e2b0a64c8e977c628411635, type: 3}
+  m_Name: IronWall
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAIProfileData
+  tacticStyle: 1
+  prioritizePlayerCharacter: 0
+  focusFireLowestHealth: 0
+  enableAutoGuard: 1
+  guardEnterDistance: 2
+  guardHoldTime: 1.3
+  lowHealthGuardThreshold: 0.75
+  guardChance: 0.8
+  rangedPreferredDistance: 4
+  retreatDistance: 2
+  dashAggressionMultiplier: 1.3
+  aggressiveDashToBackline: 0
+  stayNearSpawn: 0
+  maxRoamDistanceFromSpawn: 4.5
+  polearmStayNearShield: 0
+  maxDistanceFromShieldAnchor: 2
+  pickupSearchRadius: 6
+  hazardAvoidDistance: 0.5

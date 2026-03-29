@@ -23,7 +23,10 @@ public class ProficiencyPanelController : MonoBehaviour
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private TMP_Text statBonusText;
     [SerializeField] private TMP_Text expInfoText;
-    [SerializeField] private TMP_Text perkPreviewText;
+    [SerializeField] private TMP_Text perkPreviewText; // Basically abandoned
+    [SerializeField] private Transform perkColumnContainer;
+    [SerializeField] private GameObject perkChoiceColumnPrefab;
+    [SerializeField] private Sprite perkPlaceholderIcon;
 
     private List<GladiatorProfileData> currentProfiles = new List<GladiatorProfileData>();
     private GladiatorProficiencyType selectedType = GladiatorProficiencyType.OneHanded;
@@ -229,9 +232,86 @@ public class ProficiencyPanelController : MonoBehaviour
                 "\nExp multiplier: " + multiplier.ToString("0.00") + "x";
         }
 
-        if (perkPreviewText != null)
+        RebuildPerkColumns(currentProfile);
+    }
+
+    private void RebuildPerkColumns(GladiatorProfileData profile)
+    {
+        int[] tiers;
+        int i;
+        int level;
+
+        ClearChildren(perkColumnContainer);
+
+        if (profile == null || progressionManager == null)
         {
-            perkPreviewText.text = progressionManager.GetPerkPreviewText(currentProfile, selectedType);
+            return;
+        }
+
+        if (perkColumnContainer == null || perkChoiceColumnPrefab == null)
+        {
+            return;
+        }
+
+        level = progressionManager.GetLevel(profile, selectedType);
+        tiers = new int[] { 50, 100, 150, 200, 250, 300 };
+
+        for (i = 0; i < tiers.Length; i++)
+        {
+            GameObject columnObject;
+            ProficiencyPerkChoiceColumnUI columnUI;
+            bool unlocked;
+            bool hasChoice;
+            bool choseTop;
+            int tierValue;
+
+            tierValue = tiers[i];
+
+            columnObject = Instantiate(perkChoiceColumnPrefab, perkColumnContainer);
+            columnUI = columnObject.GetComponent<ProficiencyPerkChoiceColumnUI>();
+
+            if (columnUI == null)
+            {
+                continue;
+            }
+
+            unlocked = level >= tierValue;
+            hasChoice = progressionManager.TryGetPerkChoice(profile, selectedType, tierValue, out choseTop);
+
+            columnUI.Setup(
+                tierValue,
+                progressionManager.GetPerkDisplayName(selectedType, tierValue, true),
+                progressionManager.GetPerkDisplayName(selectedType, tierValue, false),
+                perkPlaceholderIcon,
+                unlocked,
+                hasChoice,
+                choseTop,
+                delegate
+                {
+                    progressionManager.SetPerkChoice(profile, selectedType, tierValue, true);
+                    RefreshRightDetail();
+                },
+                delegate
+                {
+                    progressionManager.SetPerkChoice(profile, selectedType, tierValue, false);
+                    RefreshRightDetail();
+                }
+            );
+        }
+    }
+
+    private void ClearChildren(Transform parent)
+    {
+        int i;
+
+        if (parent == null)
+        {
+            return;
+        }
+
+        for (i = parent.childCount - 1; i >= 0; i--)
+        {
+            Destroy(parent.GetChild(i).gameObject);
         }
     }
 
@@ -317,4 +397,6 @@ public class ProficiencyPanelController : MonoBehaviour
 
         return type.ToString();
     }
+
+
 }

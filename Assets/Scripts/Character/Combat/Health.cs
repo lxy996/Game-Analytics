@@ -23,7 +23,7 @@ public class Health : MonoBehaviour
     void Awake()
     {
         stats = GetComponent<CharacterStats>();
-        currentHealth = stats.maxHealth;
+        currentHealth = stats.GetEffectiveMaxHealth();
         isDead = false;
 
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -46,6 +46,8 @@ public class Health : MonoBehaviour
         {
             TakeDamage(999f);
         }
+
+        ApplyRegeneration();
     }
 
     public float GetCurrentHealth()
@@ -89,7 +91,7 @@ public class Health : MonoBehaviour
 
         if (OnHealthChanged != null)
         {
-            OnHealthChanged(currentHealth, stats.maxHealth);
+            OnHealthChanged(currentHealth, stats.GetEffectiveMaxHealth());
         }
 
         PlayHurtFlash();
@@ -109,14 +111,14 @@ public class Health : MonoBehaviour
 
         currentHealth = currentHealth + amount;
 
-        if (currentHealth > stats.maxHealth)
+        if (currentHealth > stats.GetEffectiveMaxHealth())
         {
-            currentHealth = stats.maxHealth;
+            currentHealth = stats.GetEffectiveMaxHealth();
         }
 
         if (OnHealthChanged != null)
         {
-            OnHealthChanged(currentHealth, stats.maxHealth);
+            OnHealthChanged(currentHealth, stats.GetEffectiveMaxHealth());
         }
     }
 
@@ -197,5 +199,59 @@ public class Health : MonoBehaviour
         Destroy(gameObject);
 
     }
+
+    private void ApplyRegeneration()
+    {
+        float maxHealthNow;
+        float healAmount;
+
+        if (isDead)
+        {
+            return;
+        }
+
+        if (stats == null)
+        {
+            return;
+        }
+
+        if (stats.healthRegenPerSecond <= 0f)
+        {
+            return;
+        }
+
+        maxHealthNow = stats.GetEffectiveMaxHealth();
+
+        if (currentHealth >= maxHealthNow)
+        {
+            return;
+        }
+
+        healAmount = stats.healthRegenPerSecond * Time.deltaTime;
+        currentHealth = currentHealth + healAmount;
+
+        if (currentHealth > maxHealthNow)
+        {
+            currentHealth = maxHealthNow;
+        }
+
+        if (OnHealthChanged != null)
+        {
+            OnHealthChanged(currentHealth, maxHealthNow);
+        }
+    }
+
+    public void ResetHealthToMax()
+    {
+        if (stats == null) stats = GetComponent<CharacterStats>();
+
+        currentHealth = stats.GetEffectiveMaxHealth();
+
+        if (OnHealthChanged != null)
+        {
+            OnHealthChanged(currentHealth, stats.GetEffectiveMaxHealth());
+        }
+    }
+
 }
 
